@@ -3,6 +3,8 @@ package model;
 import enums.StatusProjects;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Project {
 
@@ -12,6 +14,8 @@ public class Project {
     private LocalDate finishDate;
     private StatusProjects status;
     private User projectManager;
+    private List<Task> tasks;
+
 
     public Project (String projectName,
                     String description,
@@ -27,6 +31,7 @@ public class Project {
         this.finishDate = finishDate;
         this.status = status;
         this.projectManager = projectManager;
+        this.tasks = new ArrayList<>();
     }
 
     public String getProjectName() {
@@ -53,6 +58,10 @@ public class Project {
         return projectManager;
     }
 
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
@@ -75,6 +84,14 @@ public class Project {
 
     public void setProjectManager(User projectManager) {
         this.projectManager = projectManager;
+    }
+
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    public void addTasks(Task task){
+        tasks.add(task);
     }
 
     @Override

@@ -99,6 +99,13 @@ public class User {
         this.profileType = profileType;
     }
 
+    public boolean canEditUser(){
+        if(profileType == profileType.admin ||profileType == profileType.manager ){
+        return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
         return "Users{" +

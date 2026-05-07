@@ -1,4 +1,8 @@
 package enums;
 
-public class StatusTask {
+public enum StatusTask {
+    PENDING,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELED
 }
