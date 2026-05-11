@@ -1,5 +1,7 @@
 package model;
 
+import enums.ProfileType;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,4 +84,21 @@ public class Team {
     public void setCreatedAt(LocalDate createdAt) {
         this.createdAt = createdAt;
     }
+
+    public boolean canEditTeamLevel1(User user){
+
+        if(user.getProfileType() == ProfileType.manager ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canEditTeamLevel2(User user){
+
+        if(user.getProfileType() == ProfileType.manager || user.getProfileType() == ProfileType.admin ){
+            return true;
+        }
+        return false;
+    }
+
 }

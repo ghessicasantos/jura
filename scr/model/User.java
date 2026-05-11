@@ -100,7 +100,7 @@ public class User {
     }
 
     public boolean canEditUser(){
-        if(profileType == profileType.admin ||profileType == profileType.manager ){
+        if(profileType == profileType.manager ){
         return true;
         }
         return false;

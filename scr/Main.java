@@ -12,6 +12,9 @@ public class Main {
 
     public static void main(String[] args) {
 
+        User manager =
+                new User("Carla","1092138080","carla_dasta@gmail.com","PM","carla123","1020304","Carlinha",ProfileType.manager);
+
         User admin =
                 new User("Pedro", "13970108780", "pedro_cs13@hotmail.com", "Analista de Dados", "Coffees1397", "130916Pg", "Coffes", ProfileType.admin);
 
@@ -49,5 +52,13 @@ public class Main {
         String removeMember = teamService.removeMember(admin,backendTeam,collaborator);
 
         System.out.println(removeMember);
+
+        String changeOwner = teamService.changeTeamOwner(admin,backendTeam,collaborator);
+
+        System.out.println(changeOwner);
+
+        String changeOwner2 = teamService.changeTeamOwner(manager,backendTeam,admin);
+
+        System.out.println(changeOwner2);
     }
 }
