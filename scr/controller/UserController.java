@@ -51,7 +51,7 @@ public class UserController {
 
     }
 
-    public void editUserMenu(){
+    public void editUserMenu(User loggedUser){
 
         while (true){
            System.out.println("Qual informação deseja atualizar?");

@@ -64,6 +64,7 @@ public class UserService {
         loggedUser.setCargo(newCargo);
         return "Cargo atualizado.";
     }
+
     public String updateUserPassword(@NotNull User loggedUser, @NotNull User targetUser, String newPassword) {
             if (loggedUser == targetUser) {
                 targetUser.setPassword(newPassword);
@@ -86,15 +87,15 @@ public class UserService {
         return null;
     }
 
-    public String login(String email, String password){
+    public User login(String email, String password){
         User user = findUserByEmail(email);
 
         if(user == null){
-            return "Usuário nao encontrado";
+            return null;
         }
         if (!user.getPassword().equals(password)){
-            return "Senha inválida";
+            return null;
         }
-        return "Login realizado";
+        return user;
     }
 }
