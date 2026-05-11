@@ -39,7 +39,7 @@ public class TaskService {
         if(!team.canEditTeamLevel1(loggedUser)){
         return "Sem permissão";
         }
-        if(newTeamOwner.getProfileType() != ProfileType.admin && newTeamOwner.getProfileType() != ProfileType.manager){
+        if(newTeamOwner.getProfileType() != ProfileType.ADMIN && newTeamOwner.getProfileType() != ProfileType.MANAGER){
         return "Usuário não pode ser Lider de time. Verifique o perfil do usário.";
         }
         team.setTeamOwner(newTeamOwner);

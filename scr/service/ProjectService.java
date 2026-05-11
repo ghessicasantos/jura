@@ -27,7 +27,7 @@ public class ProjectService {
         if (projects.contains(projectName)){
             return null;
         }
-        if (projectManager.getProfileType() == ProfileType.colaborator){
+        if (projectManager.getProfileType() == ProfileType.COLLABORATOR){
             return null;
         }
 

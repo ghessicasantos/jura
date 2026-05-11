@@ -87,7 +87,7 @@ public class Team {
 
     public boolean canEditTeamLevel1(User user) {
 
-        if (user.getProfileType() == ProfileType.manager) {
+        if (user.getProfileType() == ProfileType.MANAGER) {
             return true;
         }
         return false;
@@ -95,7 +95,7 @@ public class Team {
 
     public boolean canEditTeamLevel2(User user) {
 
-        if (user.getProfileType() == ProfileType.manager || user.getProfileType() == ProfileType.admin) {
+        if (user.getProfileType() == ProfileType.MANAGER || user.getProfileType() == ProfileType.ADMIN) {
             return true;
         }
         return false;

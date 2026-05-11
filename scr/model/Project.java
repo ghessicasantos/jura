@@ -2,6 +2,7 @@ package model;
 
 import enums.ProfileType;
 import enums.StatusProjects;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -99,25 +100,31 @@ public class Project {
         this.tasks = tasks;
     }
 
+    public void listTask(){
+        for (Task task : tasks){
+            System.out.println(task.getTaskName());
+        }
+    }
+
     public void setTeam(Team team) {
         this.team = team;
     }
 
-    public void addTasks(Task task){
+    public void addTask(Task task){
         tasks.add(task);
     }
 
-    public boolean canEditTeamLevel1(User user){
+    public boolean canEditTeamLevel1(@NotNull User user){
 
-        if(user.getProfileType() == ProfileType.manager ){
+        if(user.getProfileType() == ProfileType.MANAGER ){
             return true;
         }
         return false;
     }
 
-    public boolean canEditTeamLevel2(User user){
+    public boolean canEditTeamLevel2(@NotNull User user){
 
-        if(user.getProfileType() == ProfileType.manager || user.getProfileType() == ProfileType.admin ){
+        if(user.getProfileType() == ProfileType.MANAGER || user.getProfileType() == ProfileType.ADMIN ){
             return true;
         }
         return false;
