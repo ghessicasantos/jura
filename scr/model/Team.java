@@ -9,7 +9,7 @@ public class Team {
     private String teamName;
     private String description;
     private User teamOwner;
-    private List<User> members;
+    private List<TeamMember> members;
     private List<Project> projects;
     private LocalDate createdAt;
 
@@ -24,6 +24,7 @@ public class Team {
         this.members = new ArrayList<>();
         this.projects = new ArrayList<>();
         this.createdAt = createdAt;
+        this.members.add(new TeamMember(teamOwner));
     }
 
     public String getTeamName() {
@@ -38,7 +39,7 @@ public class Team {
         return description;
     }
 
-    public List<User> getMembers() {
+    public List<TeamMember> getMembers() {
         return members;
     }
 
@@ -62,12 +63,12 @@ public class Team {
         this.teamOwner = teamOwner;
     }
 
-    public void setMembers(List<User> members) {
+    public void setMembers(List<TeamMember> members) {
         this.members = members;
     }
 
-    public void addMember(User user){
-        members.add(user);
+    public void addMember(TeamMember teamMember){
+        members.add(teamMember);
     }
 
    public void addProject(Project project){
