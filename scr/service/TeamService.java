@@ -6,8 +6,12 @@ import model.TeamMember;
 import model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TeamService {
+
+    private List<Team> teams = new ArrayList<>();
 
     public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt){
         Team newTeam = new Team(teamName,description,teamOwner,createdAt);
@@ -48,5 +52,16 @@ public class TeamService {
         }
         team.setTeamOwner(newTeamOwner);
         return "Novo responsável definido -> " + newTeamOwner.getFullName();
+    }
+
+    public Team getTeamByName(String teamName){
+
+        for(Team team : teams){
+
+            if(team.getTeamName().equalsIgnoreCase(teamName)){
+                return team;
+            }
+        }
+        return null;
     }
 }

@@ -85,17 +85,17 @@ public class Team {
         this.createdAt = createdAt;
     }
 
-    public boolean canEditTeamLevel1(User user){
+    public boolean canEditTeamLevel1(User user) {
 
-        if(user.getProfileType() == ProfileType.manager ){
+        if (user.getProfileType() == ProfileType.manager) {
             return true;
         }
         return false;
     }
 
-    public boolean canEditTeamLevel2(User user){
+    public boolean canEditTeamLevel2(User user) {
 
-        if(user.getProfileType() == ProfileType.manager || user.getProfileType() == ProfileType.admin ){
+        if (user.getProfileType() == ProfileType.manager || user.getProfileType() == ProfileType.admin) {
             return true;
         }
         return false;

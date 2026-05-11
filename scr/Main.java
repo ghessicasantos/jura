@@ -1,7 +1,10 @@
 import enums.ProfileType;
+import enums.StatusProjects;
+import model.Project;
 import model.Team;
 import model.TeamMember;
 import model.User;
+import service.ProjectService;
 import service.TeamService;
 import service.UserService;
 
@@ -60,5 +63,17 @@ public class Main {
         String changeOwner2 = teamService.changeTeamOwner(manager,backendTeam,admin);
 
         System.out.println(changeOwner2);
+
+        //Teste ProjectService
+
+        ProjectService projectService = new ProjectService();
+
+        Project newProject = projectService.createProject("Projeto Kira","Criação de uma nova linha de crédito",LocalDate.now(),LocalDate.now(), StatusProjects.PLANEJADO,admin,backendTeam);
+
+        System.out.println("Novo projeto criado -> " +  newProject.getProjectName());
+
+        String changeProjectName = projectService.changeProjectName(admin,newProject,"Projeto kurama");
+
+        System.out.println(changeProjectName);
     }
 }
