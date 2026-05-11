@@ -1,6 +1,8 @@
 package model;
 
+import enums.ProfileType;
 import enums.StatusProjects;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -15,6 +17,7 @@ public class Project {
     private StatusProjects status;
     private User projectManager;
     private List<Task> tasks;
+    private Team team;
 
 
     public Project (String projectName,
@@ -22,7 +25,8 @@ public class Project {
                     LocalDate startDate,
                     LocalDate finishDate,
                     StatusProjects status,
-                    User projectManager
+                    User projectManager,
+                    Team team
                     ){
 
         this.projectName = projectName;
@@ -32,6 +36,7 @@ public class Project {
         this.status = status;
         this.projectManager = projectManager;
         this.tasks = new ArrayList<>();
+        this.team = team;
     }
 
     public String getProjectName() {
@@ -62,6 +67,11 @@ public class Project {
         return tasks;
     }
 
+    public Team getTeam() {
+        return team;
+    }
+
+
     public void setProjectName(String projectName) {
         this.projectName = projectName;
     }
@@ -90,9 +100,36 @@ public class Project {
         this.tasks = tasks;
     }
 
-    public void addTasks(Task task){
+    public void listTask(){
+        for (Task task : tasks){
+            System.out.println(task.getTaskName());
+        }
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
+
+    public void addTask(Task task){
         tasks.add(task);
     }
+
+    public boolean canEditTeamLevel1(@NotNull User user){
+
+        if(user.getProfileType() == ProfileType.MANAGER ){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean canEditTeamLevel2(@NotNull User user){
+
+        if(user.getProfileType() == ProfileType.MANAGER || user.getProfileType() == ProfileType.ADMIN ){
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public String toString() {

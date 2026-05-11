@@ -11,69 +11,70 @@ public class UserService {
 
     private List<User> users = new ArrayList<>();
 
-    private void addUser(User user){
+    public void addUser(User user) {
         users.add(user);
     }
 
-    private void listUsers(){
-        for(User user : users){
+    private void listUsers() {
+        for (User user : users) {
             System.out.println(user);
         }
     }
 
-    private User findUserByLogin(String login){
-        for(User user: users){
-            if(user.getLogin().equals(login)){
+    private User findUserByLogin(String login) {
+        for (User user : users) {
+            if (user.getLogin().equals(login)) {
                 return user;
             }
-        }  return null;
+        }
+        return null;
     }
 
-    public void removeUser(String login){
+    public void removeUser(String login) {
         User userToRemove = null;
 
-        for (User user : users){
-            if(user.getLogin().equals(login)){
+        for (User user : users) {
+            if (user.getLogin().equals(login)) {
                 userToRemove = user;
             }
         }
         users.remove(userToRemove);
     }
 
-    public String updateUserField(@NotNull User loggedUser, @NotNull User targetUser, @NotNull String field, String newValueField) {
+    public String updateUserProfileType(@NotNull User loggedUser, String newProfileType) {
+        if (loggedUser.canEditUser()) {
+            ProfileType profileType = ProfileType.valueOf(newProfileType);
+            loggedUser.setProfileType(profileType);
+            return "Tipo de Perfil atualizado";
+        }
+        return "Não foi possível concluir a operação";
+    }
 
-        if (field.equals("Tipo de Perfil")) {
-            if (loggedUser.canEditUser()) {
-                ProfileType profileType = ProfileType.valueOf(newValueField);
-                targetUser.setProfileType(profileType);
-                return "Tipo de Perfil atualizado";
-            }
-            return "Sem permissão";
-        } else if (field.equals("Nome Completo")) {
+    public String updateUserFullName(@NotNull User loggedUser, String newFullName) {
+        loggedUser.setFullName(newFullName);
+        return "Nome atualizado.";
+    }
+
+    public String updateUserEmail(@NotNull User loggedUser, String newEmail) {
+        loggedUser.setEmail(newEmail);
+        return "email atualizado.";
+    }
+
+    public String updateUserCargo(@NotNull User loggedUser, String newCargo) {
+        loggedUser.setCargo(newCargo);
+        return "Cargo atualizado.";
+    }
+    public String updateUserPassword(@NotNull User loggedUser, @NotNull User targetUser, String newPassword) {
             if (loggedUser == targetUser) {
-                targetUser.setFullName(newValueField);
-                return "Nome atualizado.";
-            }
-        } else if (field.equals("Email")) {
-            if (loggedUser == targetUser) {
-                targetUser.setEmail(newValueField);
-                return "email atualizado.";
-            }
-        } else if (field.equals("Cargo")) {
-            targetUser.setCargo(newValueField);
-            return "Cargo atualizado.";
-        } else if (field.equals("Password")) {
-            if (loggedUser == targetUser) {
-                targetUser.setPassword(newValueField);
+                targetUser.setPassword(newPassword);
                 return "Password atualizado.";
             }
-        } else if (field.equals("Nome do Perfil")) {
-            if (loggedUser == targetUser) {
-                targetUser.setProfileName(newValueField);
+            return "Não foi possível concluir a operação";
+    }
+
+    public String updateUserProfileName(@NotNull User loggedUser, String newProfileName) {
+            loggedUser.setProfileName(newProfileName);
                 return "Nome do Perfil atualizado.";
-            }
-        }
-        return "Erro ao executar a operação";
     }
 
     public User findUserByEmail(String email){
