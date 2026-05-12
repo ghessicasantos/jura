@@ -50,6 +50,15 @@ public class UserService {
         return null;
     }
 
+    private User findUserByEmail(String email) {
+        for (User user : users) {
+            if (user.getEmail().equals(email)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
     public void removeUser(String login) {
         User userToRemove = null;
 

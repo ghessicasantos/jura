@@ -38,21 +38,19 @@ public class Controller {
                 System.out.println("Usuário ou senha inválidos");
             }
         }
-        while (true) {
-
-            System.out.println("O que deseja fazer?");
-
-            System.out.println("1 - Criar usuário");
-
-            System.out.println("2 - Editar usuário");
+        while (true){
+            System.out.println("Selecione uma das opções abaixo:");
+            System.out.println("1 - Usuário");
+            System.out.println("2 - Projeto");
+            System.out.println("3 - Task");
+            System.out.println("4 - Time");
+            System.out.println("5 - Sair");
 
             int option = Integer.parseInt(scan.nextLine());
 
-            if (option == 1) {
-                userController.createUserMenu();
-            } else if (option == 2) {
-                userController.editUserMenu(loggedUser);
-            } else {
+            if (option == 1){
+                userController.userMenuActions(loggedUser);
+            } else if (option == 5) {
                 break;
             }
         }

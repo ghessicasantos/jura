@@ -16,6 +16,29 @@ public class UserController {
         this.userService = userService;
     }
 
+    public void userMenuActions(User user) throws IOException {
+        while (true) {
+
+            System.out.println("O que deseja fazer?");
+
+            System.out.println("1 - Criar usuário");
+
+            System.out.println("2 - Editar usuário");
+
+            System.out.println("3 - Voltar");
+
+            int option = Integer.parseInt(scan.nextLine());
+
+            if (option == 1) {
+                createUserMenu();
+            } else if (option == 2) {
+                editUserMenu(user);
+            } else {
+                break;
+            }
+        }
+    }
+
     public void createUserMenu() throws IOException {
 
         System.out.println("Digite o nome completo:");
