@@ -3,16 +3,36 @@ package service;
 import enums.ProfileType;
 import model.User;
 import org.jetbrains.annotations.NotNull;
+import repository.UserRepository;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class UserService {
 
+
+
+    private UserRepository userRepository;
+
+    public UserService() throws IOException {
+        this.userRepository = new UserRepository();
+        this.users = userRepository.loadUsers();
+    }
+
     private List<User> users = new ArrayList<>();
 
     public void addUser(User user) {
         users.add(user);
+    }
+
+    public String createUser(User user) throws IOException {
+        addUser(user);
+
+        userRepository.saveUser(user);
+
+        return "Usuário criado.";
     }
 
     private void listUsers() {

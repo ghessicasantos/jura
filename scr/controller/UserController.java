@@ -3,15 +3,20 @@ package controller;
 import enums.ProfileType;
 import model.User;
 import service.UserService;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class UserController {
 
-    private User loggedUser;
     private Scanner scan = new Scanner(System.in);
-    private UserService userService = new UserService();
+    private UserService userService;
 
-    public void createUserMenu(){
+    public UserController(UserService userService) throws IOException {
+        this.userService = userService;
+    }
+
+    public void createUserMenu() throws IOException {
 
         System.out.println("Digite o nome completo:");
         String name = scan.nextLine();
@@ -45,7 +50,7 @@ public class UserController {
 
         User user = new User(name,cpf,email,cargo,login,password,profileName,profileType);
 
-        userService.addUser(user);
+        userService.createUser(user);
 
         System.out.println("Usuário criado: " + user.getProfileName());
 

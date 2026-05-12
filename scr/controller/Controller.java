@@ -3,17 +3,23 @@ package controller;
 import model.User;
 import service.UserService;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Controller {
 
     private Scanner scan = new Scanner(System.in);
+
     private UserController userController;
+
     private UserService userService;
 
-    public void start() {
-    this.userController = new UserController();
-    this.userService = new UserService();
+    public Controller() throws IOException{
+        this.userService = new UserService();
+        this.userController = new UserController(userService);
+    }
+
+    public void start() throws IOException{
 
         User loggedUser = null;
 
