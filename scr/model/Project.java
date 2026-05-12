@@ -17,7 +17,7 @@ public class Project {
     private StatusProjects status;
     private User projectManager;
     private List<Task> tasks;
-    private Team team;
+    private Team teamOwner;
 
 
     public Project (String projectName,
@@ -36,7 +36,7 @@ public class Project {
         this.status = status;
         this.projectManager = projectManager;
         this.tasks = new ArrayList<>();
-        this.team = team;
+        this.teamOwner = team;
     }
 
     public String getProjectName() {
@@ -67,8 +67,8 @@ public class Project {
         return tasks;
     }
 
-    public Team getTeam() {
-        return team;
+    public Team getTeamOwner() {
+        return teamOwner;
     }
 
 
@@ -106,8 +106,8 @@ public class Project {
         }
     }
 
-    public void setTeam(Team team) {
-        this.team = team;
+    public void setTeamOwner(Team teamOwner) {
+        this.teamOwner = teamOwner;
     }
 
     public void addTask(Task task){

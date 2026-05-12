@@ -3,16 +3,36 @@ package service;
 import enums.ProfileType;
 import model.User;
 import org.jetbrains.annotations.NotNull;
+import repository.UserRepository;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
 public class UserService {
 
+
+
+    private UserRepository userRepository;
+
+    public UserService() throws IOException {
+        this.userRepository = new UserRepository();
+        this.users = userRepository.loadUsers();
+    }
+
     private List<User> users = new ArrayList<>();
 
     public void addUser(User user) {
         users.add(user);
+    }
+
+    public String createUser(User user) throws IOException {
+        addUser(user);
+
+        userRepository.saveUser(user);
+
+        return "Usuário criado.";
     }
 
     private void listUsers() {
@@ -24,6 +44,15 @@ public class UserService {
     private User findUserByLogin(String login) {
         for (User user : users) {
             if (user.getLogin().equals(login)) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    private User findUserByEmail(String email) {
+        for (User user : users) {
+            if (user.getEmail().equals(email)) {
                 return user;
             }
         }
@@ -64,6 +93,7 @@ public class UserService {
         loggedUser.setCargo(newCargo);
         return "Cargo atualizado.";
     }
+
     public String updateUserPassword(@NotNull User loggedUser, @NotNull User targetUser, String newPassword) {
             if (loggedUser == targetUser) {
                 targetUser.setPassword(newPassword);
@@ -86,15 +116,15 @@ public class UserService {
         return null;
     }
 
-    public String login(String email, String password){
+    public User login(String email, String password){
         User user = findUserByEmail(email);
 
         if(user == null){
-            return "Usuário nao encontrado";
+            return null;
         }
         if (!user.getPassword().equals(password)){
-            return "Senha inválida";
+            return null;
         }
-        return "Login realizado";
+        return user;
     }
 }

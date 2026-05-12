@@ -54,7 +54,7 @@ public class TeamService {
         return "Novo responsável definido -> " + newTeamOwner.getFullName();
     }
 
-    public Team getTeamByName(String teamName){
+    public Team findTeamByName(String teamName){
 
         for(Team team : teams){
 

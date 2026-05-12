@@ -6,15 +6,25 @@ import model.Project;
 import model.Team;
 import model.User;
 import org.jetbrains.annotations.NotNull;
+import repository.ProjectRepository;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectService {
 
+    private ProjectRepository projectRepository;
+
     List<Team> teams = new ArrayList<>();
     List<Project> projects = new ArrayList<>();
+
+    public ProjectService() throws IOException{
+        this.projectRepository = new ProjectRepository();
+
+        this.projects = projectRepository.loadProject();
+    }
 
     public Project createProject(String projectName,
                                 String description,
@@ -23,7 +33,7 @@ public class ProjectService {
                                 StatusProjects status,
                                 User projectManager,
                                 Team team
-    ){
+    ) throws IOException {
         if (projects.contains(projectName)){
             return null;
         }
@@ -34,6 +44,8 @@ public class ProjectService {
         Project newProject = new Project(projectName,description,startDate,finishDate,status,projectManager,team);
 
         projects.add(newProject);
+
+        projectRepository.saveProject(newProject);
 
         return newProject;
     }
@@ -97,7 +109,7 @@ public class ProjectService {
         }
         for (Team team : teams){
             if (team.getTeamName().equalsIgnoreCase(newProjectTeam.getTeamName())){
-                targetProject.setTeam(newProjectTeam);
+                targetProject.setTeamOwner(newProjectTeam);
                 return "Novo responsável pelo projeto definido -> " + newProjectTeam;
             }
         }

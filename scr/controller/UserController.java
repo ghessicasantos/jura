@@ -3,15 +3,43 @@ package controller;
 import enums.ProfileType;
 import model.User;
 import service.UserService;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class UserController {
 
-    private User loggedUser;
     private Scanner scan = new Scanner(System.in);
-    private UserService userService = new UserService();
+    private UserService userService;
 
-    public void createUserMenu(){
+    public UserController(UserService userService) throws IOException {
+        this.userService = userService;
+    }
+
+    public void userMenuActions(User user) throws IOException {
+        while (true) {
+
+            System.out.println("O que deseja fazer?");
+
+            System.out.println("1 - Criar usuário");
+
+            System.out.println("2 - Editar usuário");
+
+            System.out.println("3 - Voltar");
+
+            int option = Integer.parseInt(scan.nextLine());
+
+            if (option == 1) {
+                createUserMenu();
+            } else if (option == 2) {
+                editUserMenu(user);
+            } else {
+                break;
+            }
+        }
+    }
+
+    public void createUserMenu() throws IOException {
 
         System.out.println("Digite o nome completo:");
         String name = scan.nextLine();
@@ -45,13 +73,13 @@ public class UserController {
 
         User user = new User(name,cpf,email,cargo,login,password,profileName,profileType);
 
-        userService.addUser(user);
+        userService.createUser(user);
 
         System.out.println("Usuário criado: " + user.getProfileName());
 
     }
 
-    public void editUserMenu(){
+    public void editUserMenu(User loggedUser){
 
         while (true){
            System.out.println("Qual informação deseja atualizar?");
