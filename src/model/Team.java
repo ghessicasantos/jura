@@ -26,7 +26,6 @@ public class Team {
         this.members = new ArrayList<>();
         this.projects = new ArrayList<>();
         this.createdAt = createdAt;
-        this.members.add(new TeamMember(teamOwner));
     }
 
     public String getTeamName() {

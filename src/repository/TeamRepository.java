@@ -3,6 +3,7 @@ package repository;
 import enums.StatusProjects;
 import model.Project;
 import model.Team;
+import model.TeamMember;
 import model.User;
 import service.TeamService;
 import service.UserService;
@@ -14,7 +15,21 @@ import java.util.List;
 
 public class TeamRepository {
 
-    public void saveProject(Project project) throws IOException {
+    private UserService userService;
+
+    private TeamService teamService;
+
+    private TeamMemberRepository teamMemberRepository;
+
+    private Team team;
+
+    public TeamRepository(UserService userService,TeamService teamService){
+        this.userService = userService;
+        this.teamService = teamService;
+
+    }
+
+    public void saveTeam(Team team) throws IOException {
         File file = new File("team.csv");
 
         boolean fileExists = file.exists();
@@ -22,33 +37,26 @@ public class TeamRepository {
         FileWriter writer = new FileWriter(file,true);
 
         if(!fileExists){
-            writer.write("team_name;description;member;finish_date;status;project_manager;team_owner \n");
+            writer.write("team_name;description;team_owner_email;created_at\n");
         }
 
-        writer.write(project.getProjectName()+ ";"+
-                        project.getDescription()+ ";"+
-                        project.getStartDate()+ ";"+
-                        project.getFinishDate()+ ";"+
-                        project.getStatus()+ ";"+
-                        project.getProjectManager()+ ";"+
-                        project.getTeamOwner()+ "\n"
+        writer.write(team.getTeamName()+ ";"+
+                        team.getDescription()+ ";"+
+                        team.getTeamOwner().getEmail()+ ";"+
+                        team.getCreatedAt()+ "\n"
                 );
         writer.close();
     }
 
-    public List<Project> loadProject() throws IOException{
+    public List<Team> loadProject() throws IOException{
 
-        UserService userService = new UserService();
+        File file = new File("team.csv");
 
-        TeamService teamService = new TeamService();
-
-        File file = new File("project.csv");
-
-        List<Project> projects = new ArrayList<>();
+        List<Team> teams = new ArrayList<>();
 
         if (file.exists()){
 
-        BufferedReader reader = new BufferedReader(new FileReader("project.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader("team.csv"));
 
         String line;
 
@@ -61,23 +69,27 @@ public class TeamRepository {
                 }
             String[] data = line.split(";");
 
-                User projectManager = userService.findUserByEmail(data[5]);
-                Team projectTeam = teamService.findTeamByName(data[6]);
+                User teamOwner = userService.findUserByEmail(data[2]);
+                LocalDate createdAt = LocalDate.parse(data[3]);
 
 
-            Project project = new Project(
+            Team team = new Team(
                     data[0],
                     data[1],
-                    LocalDate.parse(data[2]),
-                    LocalDate.parse(data[3]),
-                    StatusProjects.valueOf(data[4]),
-                    projectManager,
-                    projectTeam);
+                    teamOwner,
+                    createdAt
+                    );
 
-                projects.add(project);
-            }
+                List<TeamMember> allMembers = teamMemberRepository.loadTeamMembers();
+
+                for(TeamMember member: allMembers){
+                   if(member.getTeam().getTeamName().equalsIgnoreCase(team.getTeamName())){
+                       team.addMember(member);
+                   }
+                }
+            } teams.add(team);
             reader.close();
         }
-        return projects;
+        return teams;
     }
 }
