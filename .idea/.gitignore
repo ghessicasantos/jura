@@ -9,5 +9,5 @@
 /dataSources/
 /dataSources.local.xml
 .idea/
-out/production/jura/repository/
+out/
 *.csv
