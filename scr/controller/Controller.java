@@ -1,6 +1,7 @@
 package controller;
 
 import model.User;
+import service.ProjectService;
 import service.UserService;
 
 import java.io.IOException;
@@ -14,9 +15,16 @@ public class Controller {
 
     private UserService userService;
 
+    private ProjectService projectService;
+
+    private ProjectController projectController;
+
     public Controller() throws IOException{
         this.userService = new UserService();
         this.userController = new UserController(userService);
+        this.projectService = new ProjectService();
+        this.projectController = new ProjectController(projectService,userService);
+
     }
 
     public void start() throws IOException{
@@ -48,8 +56,12 @@ public class Controller {
 
             int option = Integer.parseInt(scan.nextLine());
 
-            if (option == 1){
+            if (option == 1) {
                 userController.userMenuActions(loggedUser);
+            }
+            else if(option == 2){
+                projectController.projectMenuAction();
+
             } else if (option == 5) {
                 break;
             }

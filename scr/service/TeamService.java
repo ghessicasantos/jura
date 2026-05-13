@@ -64,4 +64,8 @@ public class TeamService {
         }
         return null;
     }
-}
+
+    public List<Team> getTeams(){
+        return teams;
+    }
+ }

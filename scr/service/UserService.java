@@ -21,7 +21,7 @@ public class UserService {
         this.users = userRepository.loadUsers();
     }
 
-    private List<User> users = new ArrayList<>();
+    private List<User> users;
 
     public void addUser(User user) {
         users.add(user);
@@ -41,18 +41,13 @@ public class UserService {
         }
     }
 
+    public List<User> getUsers(){
+        return users;
+    }
+
     private User findUserByLogin(String login) {
         for (User user : users) {
             if (user.getLogin().equals(login)) {
-                return user;
-            }
-        }
-        return null;
-    }
-
-    private User findUserByEmail(String email) {
-        for (User user : users) {
-            if (user.getEmail().equals(email)) {
                 return user;
             }
         }
