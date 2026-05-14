@@ -4,6 +4,7 @@ import enums.StatusProjects;
 import model.Project;
 import model.Team;
 import model.User;
+import repository.TeamRepository;
 import service.ProjectService;
 import service.TeamService;
 import service.UserService;
@@ -21,6 +22,8 @@ public class ProjectController {
     private UserService userService;
 
     private TeamService teamService;
+
+    private TeamRepository teamRepository;
 
     public ProjectController(
             ProjectService projectService,
@@ -52,6 +55,7 @@ public class ProjectController {
     }
 
     public void createProjectMenu() throws IOException {
+
             System.out.println("Qual o nome do novo projeto?");
             String projectName = scan.nextLine();
             System.out.println("Qual a descrição do projeto?");
@@ -72,14 +76,17 @@ public class ProjectController {
             System.out.println("Insira o email do owner:");
             User projectOwner = userService.findUserByEmail(scan.nextLine());
             System.out.println("Qual time pertence esse projeto?");
-            for (Team teams : teamService.getTeams()){
-                System.out.println(teams);
+            if(teamService.getTeams().isEmpty()) {
+                System.out.println("Ainda não existem times disponíveis. Crie um time para prosseguir");
+                //Acrescentar ida para TeamController - Criar team.
+            } else {
+                for (Team teams : teamService.getTeams()) {
+                    System.out.println(teams);
+                }
+                Team projectTeam = teamService.findTeamByName(scan.nextLine());
+
+                Project newProjet = projectService.createProject(projectName, projectDescription, projectStartDate, projectFinishDate, projectStatus, projectOwner, projectTeam);
+                System.out.println("Novo projeto criado->" + newProjet.getProjectName());
             }
-            Team projectTeam = teamService.findTeamByName(scan.nextLine());
-
-            Project newProjet = projectService.createProject(projectName,projectDescription,projectStartDate,projectFinishDate,projectStatus,projectOwner,projectTeam);
-
-            System.out.println("Novo projeto criado->" + newProjet.getProjectName());
-
     }
 }

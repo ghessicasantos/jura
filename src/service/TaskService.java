@@ -28,7 +28,7 @@ public class TaskService {
         return "Sem permissão";
         }
         if(team.getMembers().contains(oldMember)){
-        TeamMember teamMember = new TeamMember(oldMember);
+        TeamMember teamMember = new TeamMember(oldMember,team,true);
         teamMember.deactivate();
         }
         return "Membro removido do time -> "+ oldMember.getFullName();
