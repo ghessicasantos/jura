@@ -4,7 +4,9 @@ import enums.ProfileType;
 import model.Team;
 import model.TeamMember;
 import model.User;
+import repository.TeamRepository;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +15,13 @@ public class TeamService {
 
     private List<Team> teams = new ArrayList<>();
 
-    public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt){
+    private TeamRepository teamRepository;
+
+    public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws IOException {
         Team newTeam = new Team(teamName,description,teamOwner,createdAt);
+
+        teamRepository.saveTeam(newTeam);
+
         return newTeam;
     }
 
@@ -25,7 +32,7 @@ public class TeamService {
         if(team.getMembers().contains(newMember)){
             return "usuário já cadastrado.";
         }
-        TeamMember teamMember = new TeamMember(newMember);
+        TeamMember teamMember = new TeamMember(newMember, team,true);
         team.getMembers().add(teamMember);
         return "Novo membro adicionado.";
     }
@@ -36,7 +43,7 @@ public class TeamService {
             return "Sem permissão";
         }
         if(team.getMembers().contains(oldMember)){
-            TeamMember teamMember = new TeamMember(oldMember);
+            TeamMember teamMember = new TeamMember(oldMember, team,true);
             teamMember.deactivate();
         }
         return "Membro removido do time -> "+ oldMember.getFullName();
