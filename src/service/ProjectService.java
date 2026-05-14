@@ -34,6 +34,7 @@ public class ProjectService {
                                 User projectManager,
                                 Team team
     ) throws IOException {
+
         if (projects.contains(projectName)){
             return null;
         }

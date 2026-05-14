@@ -1,13 +1,10 @@
 package repository;
 
-import enums.StatusProjects;
-import model.Project;
 import model.Team;
 import model.TeamMember;
 import model.User;
 import service.TeamService;
 import service.UserService;
-
 import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,7 +45,7 @@ public class TeamRepository {
         writer.close();
     }
 
-    public List<Team> loadProject() throws IOException{
+    public List<Team> loadTeams() throws IOException{
 
         File file = new File("team.csv");
 

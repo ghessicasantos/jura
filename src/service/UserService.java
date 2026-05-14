@@ -4,9 +4,7 @@ import enums.ProfileType;
 import model.User;
 import org.jetbrains.annotations.NotNull;
 import repository.UserRepository;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 
