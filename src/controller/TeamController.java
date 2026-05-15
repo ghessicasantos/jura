@@ -62,8 +62,10 @@ public class TeamController {
 
         System.out.println("Qual o nome do time?");
         String name = scan.nextLine();
+        
         System.out.println("Qual a descrição do time?");
         String description = scan.nextLine();
+        
         System.out.println("Qual o email do responsável pelo time?");
         User teamOwner = userService.findUserByEmail(scan.nextLine());
         if (teamOwner == null) {
@@ -82,5 +84,37 @@ public class TeamController {
         System.out.println("Novo Time criado --> "  + newTeam.getTeamName());
 
 
+    }
+
+    public void editTeamMenu(User loggedUser){
+
+        while (true){
+           System.out.println("Qual informação deseja atualizar?");
+           System.out.println("1 - Nome");
+           System.out.println("2 - Descrição");
+           System.out.println("3 - Responsável");
+
+           int option = Integer.parseInt(scan.nextLine());
+
+           if(option == 1){
+               System.out.println("Digite o novo nome:");
+               String newName = scan.nextLine();
+               String nameUpdated =  teamService.updateTeamName(loggedUser,newName);
+               System.out.println(nameUpdated);
+
+           }
+           else if(option == 2){
+               System.out.println("Digite a nova descrição:");
+               String newDescription = scan.nextLine();
+               String descriptionUpdated = teamService.updateTeamDescription(loggedUser,newDescription);
+               System.out.println(descriptionUpdated);
+           } else if (option == 3) {
+               System.out.println("Digite o novo responsável:");
+               String newOwner = scan.nextLine();
+               String ownerUpdated = teamService.updateTeamOwner(loggedUser,newOwner);
+               System.out.println(ownerUpdated);
+           } else
+               break;
+        }
     }
 }
