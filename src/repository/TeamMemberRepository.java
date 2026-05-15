@@ -17,8 +17,12 @@ public class TeamMemberRepository {
 
     private TeamService teamService;
 
-    public TeamMemberRepository(UserService userService,TeamService teamService){
+    public TeamMemberRepository(UserService userService){
         this.userService = userService;
+
+    }
+
+    public void setTeamService(TeamService teamService) {
         this.teamService = teamService;
     }
 
@@ -64,6 +68,10 @@ public class TeamMemberRepository {
                 User member = userService.findUserByEmail(data[0]);
                 Team team = teamService.findTeamByName(data[1]);
                 boolean active = Boolean.parseBoolean(data[2]);
+
+                if (member == null || team == null) {
+                    continue;
+                }
 
 
             TeamMember teamMember = new TeamMember(

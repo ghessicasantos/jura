@@ -9,11 +9,16 @@ import java.util.Scanner;
 
 public class UserController {
 
-    private Scanner scan = new Scanner(System.in);
+    private Scanner scan;
     private UserService userService;
 
     public UserController(UserService userService) throws IOException {
+        this(userService, new Scanner(System.in));
+    }
+
+    public UserController(UserService userService, Scanner scan) throws IOException {
         this.userService = userService;
+        this.scan = scan;
     }
 
     public void userMenuActions(User user) throws IOException {

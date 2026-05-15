@@ -5,7 +5,6 @@ import enums.StatusProjects;
 import model.Project;
 import model.Team;
 import model.User;
-import org.jetbrains.annotations.NotNull;
 import repository.ProjectRepository;
 
 import java.io.IOException;
@@ -17,7 +16,6 @@ public class ProjectService {
 
     private ProjectRepository projectRepository;
 
-    List<Team> teams = new ArrayList<>();
     List<Project> projects = new ArrayList<>();
 
     public ProjectService() throws IOException{
@@ -35,11 +33,17 @@ public class ProjectService {
                                 Team team
     ) throws IOException {
 
-        if (projects.contains(projectName)){
-            return null;
+        if (projectManager == null) {
+            throw new IllegalArgumentException("Responsavel pelo projeto nao encontrado.");
+        }
+        if (team == null) {
+            throw new IllegalArgumentException("Time do projeto nao encontrado.");
+        }
+        if (findProjectByName(projectName) != null){
+            throw new IllegalArgumentException("Ja existe um projeto com esse nome.");
         }
         if (projectManager.getProfileType() == ProfileType.COLLABORATOR){
-            return null;
+            throw new IllegalArgumentException("Colaborador nao pode ser responsavel pelo projeto.");
         }
 
         Project newProject = new Project(projectName,description,startDate,finishDate,status,projectManager,team);
@@ -51,69 +55,76 @@ public class ProjectService {
         return newProject;
     }
 
-    public String changeProjectName(User loggedUser,@NotNull Project targetProject,String newProjectName){
+    public String changeProjectName(User loggedUser, Project targetProject,String newProjectName){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
         for (Project project : projects){
             if(project.getProjectName().equalsIgnoreCase(newProjectName)){
-                return "Nome do projeto já existe.";
+                return "Nome do projeto ja existe.";
             }
         }
         targetProject.setProjectName(newProjectName);
         return "Nome do projeto alterado -> " + newProjectName;
     }
 
-    public String changeDescription(User loggedUser,@NotNull Project targetProject,String newProjectDescription){
+    public String changeDescription(User loggedUser, Project targetProject,String newProjectDescription){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuário não possui escopo para esta operação.";
-            }
+            return "Usuario nao possui escopo para esta operacao.";
+        }
         targetProject.setDescription(newProjectDescription);
-        return "Nova descrição definida.";
+        return "Nova descricao definida.";
     }
 
-    public String changeStartDate(User loggedUser, @NotNull Project targetProject, LocalDate newStartDate){
+    public String changeStartDate(User loggedUser, Project targetProject, LocalDate newStartDate){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
         targetProject.setStartDate(newStartDate);
-        return "Nova data de início definida -> " + newStartDate;
+        return "Nova data de inicio definida -> " + newStartDate;
     }
 
-    public String changeFinishDate(User loggedUser,@NotNull Project targetProject,LocalDate newFinishDate){
+    public String changeFinishDate(User loggedUser, Project targetProject,LocalDate newFinishDate){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
         targetProject.setFinishDate(newFinishDate);
-        return "Nova data de término definida -> " + newFinishDate;
+        return "Nova data de termino definida -> " + newFinishDate;
     }
 
-    public String changeStatus(User loggedUser,@NotNull Project targetProject,StatusProjects newProjectStatus) {
+    public String changeStatus(User loggedUser, Project targetProject,StatusProjects newProjectStatus) {
         if (!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
         targetProject.setStatus(newProjectStatus);
         return "Novo Status definido -> " + newProjectStatus;
     }
 
-    public String changeProjectManager(User loggedUser,@NotNull Project targetProject,User newProjectManager) {
+    public String changeProjectManager(User loggedUser, Project targetProject,User newProjectManager) {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
         targetProject.setProjectManager(newProjectManager);
-        return "Novo responsável pelo projeto definido -> " + newProjectManager;
+        return "Novo responsavel pelo projeto definido -> " + newProjectManager;
     }
 
-    public String changeProjectTeam(User loggedUser,@NotNull Project targetProject,Team newProjectTeam) {
+    public String changeProjectTeam(User loggedUser, Project targetProject,Team newProjectTeam) {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuário não possui escopo para esta operação.";
+            return "Usuario nao possui escopo para esta operacao.";
         }
-        for (Team team : teams){
-            if (team.getTeamName().equalsIgnoreCase(newProjectTeam.getTeamName())){
-                targetProject.setTeamOwner(newProjectTeam);
-                return "Novo responsável pelo projeto definido -> " + newProjectTeam;
+        if (newProjectTeam == null) {
+            return "time nao encontrado.";
+        }
+        targetProject.setTeamOwner(newProjectTeam);
+        return "Novo time do projeto definido -> " + newProjectTeam.getTeamName();
+    }
+
+    public Project findProjectByName(String projectName) {
+        for (Project project : projects) {
+            if (project.getProjectName().equalsIgnoreCase(projectName)) {
+                return project;
             }
         }
-        return "time não encontrado.";
+        return null;
     }
 }

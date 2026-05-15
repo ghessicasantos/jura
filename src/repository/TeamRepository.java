@@ -1,9 +1,7 @@
 package repository;
 
 import model.Team;
-import model.TeamMember;
 import model.User;
-import service.TeamService;
 import service.UserService;
 import java.io.*;
 import java.time.LocalDate;
@@ -14,15 +12,12 @@ public class TeamRepository {
 
     private UserService userService;
 
-    private TeamService teamService;
-
     private TeamMemberRepository teamMemberRepository;
 
-    private Team team;
 
-    public TeamRepository(UserService userService,TeamService teamService){
+    public TeamRepository(UserService userService, TeamMemberRepository teamMemberRepository){
         this.userService = userService;
-        this.teamService = teamService;
+        this.teamMemberRepository = teamMemberRepository;
 
     }
 
@@ -65,8 +60,14 @@ public class TeamRepository {
                 continue;
                 }
             String[] data = line.split(";");
+                if (data.length < 4) {
+                    continue;
+                }
 
                 User teamOwner = userService.findUserByEmail(data[2]);
+                if (teamOwner == null) {
+                    continue;
+                }
                 LocalDate createdAt = LocalDate.parse(data[3]);
 
 
@@ -76,15 +77,8 @@ public class TeamRepository {
                     teamOwner,
                     createdAt
                     );
-
-                List<TeamMember> allMembers = teamMemberRepository.loadTeamMembers();
-
-                for(TeamMember member: allMembers){
-                   if(member.getTeam().getTeamName().equalsIgnoreCase(team.getTeamName())){
-                       team.addMember(member);
-                   }
-                }
-            } teams.add(team);
+                teams.add(team);
+            }
             reader.close();
         }
         return teams;

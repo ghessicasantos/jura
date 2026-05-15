@@ -31,8 +31,8 @@ public class ProjectRepository {
                         project.getStartDate()+ ";"+
                         project.getFinishDate()+ ";"+
                         project.getStatus()+ ";"+
-                        project.getProjectManager()+ ";"+
-                        project.getTeamOwner()+ "\n"
+                        project.getProjectManager().getEmail()+ ";"+
+                        project.getTeamOwner().getTeamName()+ "\n"
                 );
         writer.close();
     }
@@ -41,7 +41,7 @@ public class ProjectRepository {
 
         UserService userService = new UserService();
 
-        TeamService teamService = new TeamService();
+        TeamService teamService = new TeamService(userService);
 
         File file = new File("project.csv");
 
@@ -61,9 +61,15 @@ public class ProjectRepository {
                 continue;
                 }
             String[] data = line.split(";");
+                if (data.length < 7) {
+                    continue;
+                }
 
                 User projectManager = userService.findUserByEmail(data[5]);
                 Team projectTeam = teamService.findTeamByName(data[6]);
+                if (projectManager == null || projectTeam == null) {
+                    continue;
+                }
 
 
             Project project = new Project(

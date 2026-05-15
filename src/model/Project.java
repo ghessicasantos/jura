@@ -2,7 +2,6 @@ package model;
 
 import enums.ProfileType;
 import enums.StatusProjects;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -114,7 +113,7 @@ public class Project {
         tasks.add(task);
     }
 
-    public boolean canEditTeamLevel1(@NotNull User user){
+    public boolean canEditTeamLevel1(User user){
 
         if(user.getProfileType() == ProfileType.MANAGER ){
             return true;
@@ -122,7 +121,7 @@ public class Project {
         return false;
     }
 
-    public boolean canEditTeamLevel2(@NotNull User user){
+    public boolean canEditTeamLevel2(User user){
 
         if(user.getProfileType() == ProfileType.MANAGER || user.getProfileType() == ProfileType.ADMIN ){
             return true;
