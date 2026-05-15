@@ -7,34 +7,37 @@ import java.time.LocalDate;
 
 public class Task {
 
-    private String taskName;
+    private String taskTitle;
     private String description;
     private LocalDate startDate;
     private LocalDate finishDate;
     private StatusTask status;
     private User assignedUser;
     private Project project;
+    private Team team;
 
-public Task(String taskName,
+public Task(String taskTitle,
             String description,
             LocalDate startDate,
             LocalDate finishDate,
             StatusTask status,
             User assignedUser,
-            Project project){
+            Project project,
+            Team team){
 
-    this.taskName = taskName;
+    this.taskTitle = taskTitle;
     this.description = description;
     this.startDate = startDate;
     this.finishDate = finishDate;
     this.status = status;
     this.assignedUser = assignedUser;
     this.project = project;
+    this.team = team;
 
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getTaskTitle() {
+        return taskTitle;
     }
 
     public String getDescription() {
@@ -61,8 +64,12 @@ public Task(String taskName,
         return project;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTaskTitle(String taskTitle) {
+        this.taskTitle = taskTitle;
     }
 
     public void setDescription(String description) {
@@ -89,6 +96,10 @@ public Task(String taskName,
         this.project = project;
     }
 
+    public void setTeam(Team team) {
+        this.project = project;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
@@ -99,6 +110,7 @@ public Task(String taskName,
                 ", status=" + status +
                 ", assignedUser=" + assignedUser +
                 ", project=" + project +
+                ", team=" + team +
                 '}';
     }
 }
