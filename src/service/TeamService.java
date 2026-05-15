@@ -102,4 +102,19 @@ public class TeamService {
         }
         return null;
     }
+
+    public String updateTeamName(User loggedUser, String newName) {
+        loggedUser.setTeamName(newName);
+        return "Nome atualizado.";
+    }
+
+    public String updateTeamDescription(User loggedUser, String newDescription) {
+        loggedUser.setDescription(newDescription);
+        return "Descrição atualizada.";
+    }
+
+    public String updateTeamOwner(User loggedUser, String newOner) {
+        loggedUser.setTeamOwner(newOwner);
+        return "Responsável atualizado.";
+    }
  }
