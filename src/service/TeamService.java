@@ -4,6 +4,7 @@ import enums.ProfileType;
 import model.Team;
 import model.TeamMember;
 import model.User;
+import repository.TeamMemberRepository;
 import repository.TeamRepository;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -12,14 +13,32 @@ import java.util.List;
 
 public class TeamService {
 
-    private List<Team> teams = new ArrayList<>();
-
     private TeamRepository teamRepository;
 
+    private List<Team> teams = new ArrayList<>();
+
+    public TeamService(UserService userService) throws IOException {
+        this(userService, new TeamMemberRepository(userService));
+    }
+
+    public TeamService(UserService userService, TeamMemberRepository teamMemberRepository) throws IOException {
+        this.teamRepository = new TeamRepository(userService,teamMemberRepository);
+        teamMemberRepository.setTeamService(this);
+        this.teams = teamRepository.loadTeams();
+    }
+
     public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws IOException {
+        if (teamOwner == null) {
+            throw new IllegalArgumentException("Responsavel pelo time nao encontrado.");
+        }
+        if (findTeamByName(teamName) != null) {
+            throw new IllegalArgumentException("Ja existe um time com esse nome.");
+        }
+
         Team newTeam = new Team(teamName,description,teamOwner,createdAt);
 
         teamRepository.saveTeam(newTeam);
+        teams.add(newTeam);
 
         return newTeam;
     }
@@ -28,7 +47,7 @@ public class TeamService {
         if(!team.canEditTeamLevel2(loggedUser)){
             return "Sem permissão";
         }
-        if(team.getMembers().contains(newMember)){
+        if(findTeamMember(team, newMember) != null){
             return "usuário já cadastrado.";
         }
         TeamMember teamMember = new TeamMember(newMember, team,true);
@@ -41,8 +60,8 @@ public class TeamService {
         if(!team.canEditTeamLevel2(loggedUser)){
             return "Sem permissão";
         }
-        if(team.getMembers().contains(oldMember)){
-            TeamMember teamMember = new TeamMember(oldMember, team,true);
+        TeamMember teamMember = findTeamMember(team, oldMember);
+        if(teamMember != null){
             teamMember.deactivate();
         }
         return "Membro removido do time -> "+ oldMember.getFullName();
@@ -73,5 +92,14 @@ public class TeamService {
 
     public List<Team> getTeams(){
         return teams;
+    }
+
+    private TeamMember findTeamMember(Team team, User user) {
+        for (TeamMember member : team.getMembers()) {
+            if (member.getUser().equals(user)) {
+                return member;
+            }
+        }
+        return null;
     }
  }

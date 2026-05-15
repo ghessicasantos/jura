@@ -99,4 +99,10 @@ public class Team {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "Time: " + teamName +
+                " | Responsavel: " + teamOwner.getFullName() +
+                " | Criado em: " + createdAt;
+    }
 }

@@ -2,7 +2,6 @@ package service;
 
 import enums.ProfileType;
 import model.User;
-import org.jetbrains.annotations.NotNull;
 import repository.UserRepository;
 import java.io.IOException;
 import java.util.List;
@@ -63,7 +62,7 @@ public class UserService {
         users.remove(userToRemove);
     }
 
-    public String updateUserProfileType(@NotNull User loggedUser, String newProfileType) {
+    public String updateUserProfileType(User loggedUser, String newProfileType) {
         if (loggedUser.canEditUser()) {
             ProfileType profileType = ProfileType.valueOf(newProfileType);
             loggedUser.setProfileType(profileType);
@@ -72,22 +71,22 @@ public class UserService {
         return "Não foi possível concluir a operação";
     }
 
-    public String updateUserFullName(@NotNull User loggedUser, String newFullName) {
+    public String updateUserFullName(User loggedUser, String newFullName) {
         loggedUser.setFullName(newFullName);
         return "Nome atualizado.";
     }
 
-    public String updateUserEmail(@NotNull User loggedUser, String newEmail) {
+    public String updateUserEmail(User loggedUser, String newEmail) {
         loggedUser.setEmail(newEmail);
         return "email atualizado.";
     }
 
-    public String updateUserCargo(@NotNull User loggedUser, String newCargo) {
+    public String updateUserCargo(User loggedUser, String newCargo) {
         loggedUser.setCargo(newCargo);
         return "Cargo atualizado.";
     }
 
-    public String updateUserPassword(@NotNull User loggedUser, @NotNull User targetUser, String newPassword) {
+    public String updateUserPassword(User loggedUser, User targetUser, String newPassword) {
             if (loggedUser == targetUser) {
                 targetUser.setPassword(newPassword);
                 return "Password atualizado.";
@@ -95,7 +94,7 @@ public class UserService {
             return "Não foi possível concluir a operação";
     }
 
-    public String updateUserProfileName(@NotNull User loggedUser, String newProfileName) {
+    public String updateUserProfileName(User loggedUser, String newProfileName) {
             loggedUser.setProfileName(newProfileName);
                 return "Nome do Perfil atualizado.";
     }
