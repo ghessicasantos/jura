@@ -127,4 +127,40 @@ public class ProjectService {
         }
         return null;
     }
+
+    public String updateProjectName(User loggedUser, String newName) {
+        loggedUser.setProjectName(newName);
+        return "Nome atualizado.";
+    }
+
+    public String updateProjectDescription(User loggedUser, String newDescription) {
+        loggedUser.setDescription(newDescription);
+        return "Descrição atualizada.";
+    }
+
+    public String updateProjectStartDate(User loggedUser, String newDate) {
+        loggedUser.setStartDate(newDate);
+        return "Data de início atualizada.";
+    }
+
+    public String updateProjectFinishDate(User loggedUser, String newDate) {
+        loggedUser.setFinishDate(newDate);
+        return "Data de finalização atualizada.";
+    }
+
+    public String updateProjectStatus(User loggedUser, String newStatus) {
+        loggedUser.setStatus(newStatus);
+        return "Status atualizado.";
+    }
+
+    public String updateProjectManager(User loggedUser, String newProjectManager) {
+        loggedUser.setProjectManager(newProjectManager);
+        return "Gerente atualizado.";
+    }
+
+    public String updateProjectTeam(User loggedUser, String newTeam) {
+        loggedUser.setTeamOwner(newOwner);
+        return "Time atualizado.";
+    }
+
 }

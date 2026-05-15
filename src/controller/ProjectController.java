@@ -140,4 +140,67 @@ public class ProjectController {
                 System.out.println("Novo projeto criado->" + newProjet.getProjectName());
             }
     }
+
+    public void editTeamMenu(User loggedUser){
+
+        while (true){
+           System.out.println("Qual informação deseja atualizar?");
+           System.out.println("1 - Nome");
+           System.out.println("2 - Descrição");
+           System.out.println("3 - Data de Início");
+           System.out.println("4 - Data de Finalização");
+           System.out.println("5 - Status");
+           System.out.println("6 - Gerente");
+           System.out.println("7 - Time");
+           
+
+           int option = Integer.parseInt(scan.nextLine());
+
+           if(option == 1){
+               System.out.println("Digite o novo nome:");
+               String newName = scan.nextLine();
+               String nameUpdated =  projectService.updateProjectName(loggedUser,newName);
+               System.out.println(nameUpdated);
+
+           }
+           else if(option == 2){
+               System.out.println("Digite a nova descrição:");
+               String newDescription = scan.nextLine();
+               String descriptionUpdated = projectService.updateProjectDescription(loggedUser,newDescription);
+               System.out.println(descriptionUpdated);
+
+           } else if (option == 3) {
+               System.out.println("Digite a nova data de início:");
+               String newDate = scan.nextLine();
+               String dateUpdated = projectService.updateProjectStartDate(loggedUser,newDate);
+               System.out.println(dateUpdated);
+
+           } else if (option == 4) {
+               System.out.println("Digite o novo data de finalização:");
+               String newDate = scan.nextLine();
+               String dateUpdated = projectService.updateProjectFinishDate(loggedUser,newDate);
+               System.out.println(dateUpdated);
+
+            } else if (option == 5) {
+               System.out.println("Digite o novo status:");
+               String newStatus = scan.nextLine();
+               String statusUpdated = projectService.updateProjectStatus(loggedUser,newStatus);
+               System.out.println(statusUpdated);
+
+            } else if (option == 6) {
+               System.out.println("Digite o novo gerente:");
+               String newProjectManager = scan.nextLine();
+               String projectManagerUpdated = projectService.setProjectManager(loggedUser,newProjectManager);
+               System.out.println(projectManagerUpdated);
+
+            } else if (option == 7) {
+               System.out.println("Digite o novo time:");
+               String newTeam = scan.nextLine();
+               String teamUpdated = projectService.updateProjectTeam(loggedUser,newTeam);
+               System.out.println(teamUpdated);
+           
+            } else
+               break;
+        }
+    }
 }
