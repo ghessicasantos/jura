@@ -114,7 +114,7 @@ public class TeamService {
     }
 
     public String updateTeamOwner(User loggedUser, String newOner) {
-        loggedUser.setTeamOwner(newCargo);
+        loggedUser.setTeamOwner(newOwner);
         return "Responsável atualizado.";
     }
  }
