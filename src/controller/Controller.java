@@ -1,10 +1,10 @@
 package controller;
 
 import model.User;
-import repository.TeamMemberRepository;
 import service.ProjectService;
 import service.TeamService;
 import service.UserService;
+import service.TaskService;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -17,8 +17,6 @@ public class Controller {
 
     private UserService userService;
 
-    private TeamMemberRepository teamMemberRepository;
-
     private ProjectService projectService;
 
     private ProjectController projectController;
@@ -27,13 +25,19 @@ public class Controller {
 
     private TeamService teamService;
 
+    private TaskService taskService;
+
+    private TaskController taskController;
+
+
     public Controller() throws IOException{
         this.userService = new UserService();
         this.userController = new UserController(userService, scan);
-        this.teamMemberRepository = new TeamMemberRepository(userService);
         this.projectService = new ProjectService();
-        this.teamService = new TeamService(userService,teamMemberRepository);
-        this.teamController = new TeamController(projectService,userService,teamService, scan);
+        this.teamService = new TeamService(userService);
+        this.teamController = new TeamController(userService,teamService, scan);
+        this.taskService = new TaskService();
+        this.taskController = new TaskController(taskService, projectService, userService, scan);
         this.projectController = new ProjectController(projectService,userService,teamService,teamController, scan);
     }
 
@@ -70,10 +74,13 @@ public class Controller {
                 userController.userMenuActions(loggedUser);
 
             } else if (option == 2) {
-                teamController.teamMenuActions();
+                teamController.teamMenuActions(loggedUser);
+            
+            } else if (option == 3) {
+                taskController.taskMenuActions();
 
             } else if(option == 4){
-                projectController.projectMenuAction();
+                projectController.projectMenuAction(loggedUser);
 
             } else if (option == 5) {
                 break;

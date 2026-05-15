@@ -2,7 +2,6 @@ package controller;
 
 import model.Team;
 import model.User;
-import service.ProjectService;
 import service.TeamService;
 import service.UserService;
 
@@ -14,33 +13,27 @@ public class TeamController {
 
     Scanner scan;
 
-    private ProjectService projectService;
-
     private UserService userService;
 
     private TeamService teamService;
 
     public TeamController(
-            ProjectService projectService,
             UserService userService,
             TeamService teamService
     ) {
-        this(projectService, userService, teamService, new Scanner(System.in));
+        this(userService, teamService, new Scanner(System.in));
     }
 
     public TeamController(
-            ProjectService projectService,
             UserService userService,
             TeamService teamService,
             Scanner scan
     ) {
-
-        this.projectService = projectService;
         this.userService = userService;
         this.teamService = teamService;
         this.scan = scan;
     }
-    public void teamMenuActions() throws IOException {
+    public void teamMenuActions(User loggedUser) throws IOException {
 
         while (true) {
             System.out.println("O que deseja fazer?");
@@ -52,6 +45,8 @@ public class TeamController {
 
             if (option == 1) {
                 createTeamMenu();
+            } else if (option == 2) {
+                editTeamMenu(loggedUser);
             } else {
                 break;
 
@@ -82,39 +77,48 @@ public class TeamController {
             return;
         }
         System.out.println("Novo Time criado --> "  + newTeam.getTeamName());
-
-
     }
 
     public void editTeamMenu(User loggedUser){
 
+            System.out.println("Digite o nome do time que deseja editar:");
+            teamService.getTeams().forEach(team -> System.out.println(team.getTeamName()));
+            String teamName = scan.nextLine();
+            Team targetTeam = teamService.findTeamByName(teamName);
+            if (targetTeam == null) {
+                System.out.println("Time nao encontrado.");
+                return;
+            }
         while (true){
            System.out.println("Qual informação deseja atualizar?");
            System.out.println("1 - Nome");
            System.out.println("2 - Descrição");
            System.out.println("3 - Responsável");
+           System.out.println("4 - Voltar");
+
 
            int option = Integer.parseInt(scan.nextLine());
 
            if(option == 1){
                System.out.println("Digite o novo nome:");
                String newName = scan.nextLine();
-               String nameUpdated =  teamService.updateTeamName(loggedUser,newName);
+               String nameUpdated =  teamService.updateTeamName(targetTeam, newName);
                System.out.println(nameUpdated);
-
            }
            else if(option == 2){
                System.out.println("Digite a nova descrição:");
                String newDescription = scan.nextLine();
-               String descriptionUpdated = teamService.updateTeamDescription(loggedUser,newDescription);
+               String descriptionUpdated = teamService.updateTeamDescription(targetTeam, newDescription);
                System.out.println(descriptionUpdated);
            } else if (option == 3) {
                System.out.println("Digite o novo responsável:");
                String newOwner = scan.nextLine();
-               String ownerUpdated = teamService.updateTeamOwner(loggedUser,newOwner);
+               User newOwnerUser = userService.findUserByEmail(newOwner);
+               String ownerUpdated = teamService.changeTeamOwner(loggedUser, targetTeam, newOwnerUser);
                System.out.println(ownerUpdated);
-           } else
+           } else if (option == 4) {
                break;
+           }
         }
     }
 }

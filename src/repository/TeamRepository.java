@@ -7,22 +7,21 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import enums.CsvFile;
 
 public class TeamRepository {
 
     private UserService userService;
 
-    private TeamMemberRepository teamMemberRepository;
+    private static final String FILE_PATH = CsvFile.TEAM.getFileName();
 
-
-    public TeamRepository(UserService userService, TeamMemberRepository teamMemberRepository){
+    public TeamRepository(UserService userService){
         this.userService = userService;
-        this.teamMemberRepository = teamMemberRepository;
 
     }
 
     public void saveTeam(Team team) throws IOException {
-        File file = new File("team.csv");
+        File file = new File(FILE_PATH);
 
         boolean fileExists = file.exists();
 
@@ -42,13 +41,13 @@ public class TeamRepository {
 
     public List<Team> loadTeams() throws IOException{
 
-        File file = new File("team.csv");
+        File file = new File(FILE_PATH);
 
         List<Team> teams = new ArrayList<>();
 
         if (file.exists()){
 
-        BufferedReader reader = new BufferedReader(new FileReader("team.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
 
         String line;
 

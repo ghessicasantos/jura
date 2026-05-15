@@ -9,20 +9,18 @@ import repository.ProjectRepository;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectService {
 
     private ProjectRepository projectRepository;
 
-    List<Project> projects = new ArrayList<>();
-
     public ProjectService() throws IOException{
         this.projectRepository = new ProjectRepository();
-
         this.projects = projectRepository.loadProject();
     }
+
+    List<Project> projects;
 
     public Project createProject(String projectName,
                                 String description,
@@ -55,9 +53,11 @@ public class ProjectService {
         return newProject;
     }
 
+    String deniedPermissionString = "Usuário não possui escopo para esta operacão.";
+
     public String changeProjectName(User loggedUser, Project targetProject,String newProjectName){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         for (Project project : projects){
             if(project.getProjectName().equalsIgnoreCase(newProjectName)){
@@ -70,7 +70,7 @@ public class ProjectService {
 
     public String changeDescription(User loggedUser, Project targetProject,String newProjectDescription){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         targetProject.setDescription(newProjectDescription);
         return "Nova descricao definida.";
@@ -78,7 +78,7 @@ public class ProjectService {
 
     public String changeStartDate(User loggedUser, Project targetProject, LocalDate newStartDate){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         targetProject.setStartDate(newStartDate);
         return "Nova data de inicio definida -> " + newStartDate;
@@ -86,7 +86,7 @@ public class ProjectService {
 
     public String changeFinishDate(User loggedUser, Project targetProject,LocalDate newFinishDate){
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         targetProject.setFinishDate(newFinishDate);
         return "Nova data de termino definida -> " + newFinishDate;
@@ -94,7 +94,7 @@ public class ProjectService {
 
     public String changeStatus(User loggedUser, Project targetProject,StatusProjects newProjectStatus) {
         if (!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         targetProject.setStatus(newProjectStatus);
         return "Novo Status definido -> " + newProjectStatus;
@@ -102,15 +102,15 @@ public class ProjectService {
 
     public String changeProjectManager(User loggedUser, Project targetProject,User newProjectManager) {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         targetProject.setProjectManager(newProjectManager);
-        return "Novo responsavel pelo projeto definido -> " + newProjectManager;
+        return "Novo responsavel pelo projeto definido -> " + newProjectManager.getFullName();
     }
 
     public String changeProjectTeam(User loggedUser, Project targetProject,Team newProjectTeam) {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
-            return "Usuario nao possui escopo para esta operacao.";
+            return deniedPermissionString;
         }
         if (newProjectTeam == null) {
             return "time nao encontrado.";
@@ -128,39 +128,8 @@ public class ProjectService {
         return null;
     }
 
-    public String updateProjectName(User loggedUser, String newName) {
-        loggedUser.setProjectName(newName);
-        return "Nome atualizado.";
-    }
-
-    public String updateProjectDescription(User loggedUser, String newDescription) {
-        loggedUser.setDescription(newDescription);
-        return "Descrição atualizada.";
-    }
-
-    public String updateProjectStartDate(User loggedUser, String newDate) {
-        loggedUser.setStartDate(newDate);
-        return "Data de início atualizada.";
-    }
-
-    public String updateProjectFinishDate(User loggedUser, String newDate) {
-        loggedUser.setFinishDate(newDate);
-        return "Data de finalização atualizada.";
-    }
-
-    public String updateProjectStatus(User loggedUser, String newStatus) {
-        loggedUser.setStatus(newStatus);
-        return "Status atualizado.";
-    }
-
-    public String updateProjectManager(User loggedUser, String newProjectManager) {
-        loggedUser.setProjectManager(newProjectManager);
-        return "Gerente atualizado.";
-    }
-
-    public String updateProjectTeam(User loggedUser, String newTeam) {
-        loggedUser.setTeamOwner(newOwner);
-        return "Time atualizado.";
+    public List<Project> getProjects() {
+        return projects;
     }
 
 }

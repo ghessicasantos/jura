@@ -1,12 +1,12 @@
 package repository;
 
-import enums.ProfileType;
 import enums.StatusProjects;
 import model.Project;
 import model.Team;
 import model.User;
 import service.TeamService;
 import service.UserService;
+import enums.CsvFile;
 
 import java.io.*;
 import java.time.LocalDate;
@@ -15,8 +15,10 @@ import java.util.List;
 
 public class ProjectRepository {
 
+    private static final String FILE_PATH = CsvFile.PROJECT.getFileName();
+
     public void saveProject(Project project) throws IOException {
-        File file = new File("project.csv");
+        File file = new File(FILE_PATH);
 
         boolean fileExists = file.exists();
 
@@ -43,13 +45,13 @@ public class ProjectRepository {
 
         TeamService teamService = new TeamService(userService);
 
-        File file = new File("project.csv");
+        File file = new File(FILE_PATH);
 
         List<Project> projects = new ArrayList<>();
 
         if (file.exists()){
 
-        BufferedReader reader = new BufferedReader(new FileReader("project.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
 
         String line;
 

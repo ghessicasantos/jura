@@ -1,47 +1,42 @@
 package service;
 
-import enums.ProfileType;
-import enums.StatusTask;
+import enums.StatusTasks;
 import model.*;
+import repository.TaskRepository;
 
+import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 public class TaskService {
 
     private TaskRepository taskRepository;
 
-    List<Task> tasks = new ArrayList<>();
-
     public TaskService() throws IOException{
         this.taskRepository = new TaskRepository();
-
         this.tasks = taskRepository.loadTask();
     }
 
+    List<Task> tasks;
+    
     public Task createTask(String taskTitle, 
                             String description, 
                             LocalDate startDate, 
                             LocalDate finishDate, 
-                            StatusTask status, 
+                            StatusTasks status, 
                             User assignedUser, 
-                            Project project,
-                            Team team
+                            Project project
     )  throws IOException {
 
     if (assignedUser == null) {
-        throw new IllegalArgumentException("Responsavel pelo projeto nao encontrado.");
-    }
-    if (team == null) {
-        throw new IllegalArgumentException("Time do projeto nao encontrado.");
-    }
-    if (findProjectByName(project) != null){
-        throw new IllegalArgumentException("Ja existe um projeto com esse nome.");
-    }
-    if (assignedUser.getProfileType() == ProfileType.COLLABORATOR){
-        throw new IllegalArgumentException("Colaborador nao pode ser responsavel pelo projeto.");
+        throw new IllegalArgumentException("Responsavel pela tarefa nao encontrado.");
     }
 
-    Task newTask = new Task(taskTitle,description,startDate,finishDate,status,assignedUser,project, team);
+    if (project == null) {
+        throw new IllegalArgumentException("Projeto nao encontrado.");
+    }
+
+    Task newTask = new Task(taskTitle,description,startDate,finishDate,status,assignedUser,project);
     
     tasks.add(newTask);
 
@@ -50,77 +45,48 @@ public class TaskService {
     return newTask;
     }
 
-    public String changeTaskTitle(User loggedUser, Task targetTask,String newTaskTitle){
+    public String changeTaskTitle(Task targetTask,String newTaskTitle){
         targetTask.setTaskTitle(newTaskTitle);
         return "Título da tarefa definido -> " + newTaskTitle;
     }
 
-    public String changeDescription(User loggedUser, Task targetTask,String newTaskDescription){
+    public String changeDescription(Task targetTask,String newTaskDescription){
         targetTask.setDescription(newTaskDescription);
         return "Descricao definida: " + newTaskDescription;
     }
 
-    public String changeStartDate(User loggedUser, Task targetTask, LocalDate newStartDate){
+    public String changeStartDate(Task targetTask, LocalDate newStartDate){
         targetTask.setStartDate(newStartDate);
         return "Data de inicio definida -> " + newStartDate;
     }
 
-    public String changeFinishDate(User loggedUser, Task targetTask,LocalDate newFinishDate){
+    public String changeFinishDate(Task targetTask,LocalDate newFinishDate){
         targetTask.setFinishDate(newFinishDate);
         return "Data de termino definida -> " + newFinishDate;
     }
 
-    public String changeStatus(User loggedUser, Task targetTask,StatusTask newTaskStatus) {
+    public String changeStatus(Task targetTask,StatusTasks newTaskStatus) {
         targetTask.setStatus(newTaskStatus);
         return "Novo Status definido -> " + newTaskStatus;
     }
 
-    public String changeAssignedUser(User loggedUser, Task targetTask,User newAssignedUser) {
+    public String changeAssignedUser(Task targetTask,User newAssignedUser) {
         targetTask.setAssignedUser(newAssignedUser);
-        return "Responsavel pela tarefa definido -> " + newAssignedUser.getName();
+        return "Responsavel pela tarefa definido -> " + newAssignedUser.getFullName();
     }
 
-    public String changeTaskTeam(User loggedUser, Task targetTask,Team newTaskTeam) {
-        if (newTaskTeam == null) {
-            return "time nao encontrado.";
+    public List<Task> getTasks() {
+        return tasks;
+    }
+
+    public Task findTaskByTitle(String taskTitle) {
+        for (Task task : tasks) {
+            if (task.getTaskTitle().equalsIgnoreCase(taskTitle)) {
+                return task;
+            }
         }
-        targetTask.setTeam(newTaskTeam);
-        return "Time da tarefa definido -> " + newTaskTeam.getTeamName();
+        return null;
     }
     
-    public String updateTaskTitle(User loggedUser, String newName) {
-        loggedUser.setTaskTitle(newTitle);
-        return "Título atualizado.";
-    }
-
-    public String updateTaskDescription(User loggedUser, String newDescription) {
-        loggedUser.setDescription(newDescription);
-        return "Descrição atualizada.";
-    }
-
-    public String updateTaskStartDate(User loggedUser, String newDate) {
-        loggedUser.setStartDate(newDate);
-        return "Data de início atualizada.";
-    }
-
-    public String updateTaskFinishDate(User loggedUser, String newDate) {
-        loggedUser.setFinishDate(newDate);
-        return "Data de finalização atualizada.";
-    }
-
-    public String updateTaskStatus(User loggedUser, String newStatus) {
-        loggedUser.setStatus(newStatus);
-        return "Status atualizado.";
-    }
-
-    public String updateTaskAssignedUser(User loggedUser, String newAssignedUser) {
-        loggedUser.setAssignedUser(newAssignedUser);
-        return "Responsável pela tarefa atualizado.";
-    }
-
-    public String updateTaskTeam(User loggedUser, String newTeam) {
-        loggedUser.setTeamOwner(newOwner);
-        return "Time atualizado.";
-    }
 }
 

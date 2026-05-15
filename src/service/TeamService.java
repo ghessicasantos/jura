@@ -4,28 +4,21 @@ import enums.ProfileType;
 import model.Team;
 import model.TeamMember;
 import model.User;
-import repository.TeamMemberRepository;
 import repository.TeamRepository;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class TeamService {
 
     private TeamRepository teamRepository;
 
-    private List<Team> teams = new ArrayList<>();
-
     public TeamService(UserService userService) throws IOException {
-        this(userService, new TeamMemberRepository(userService));
-    }
-
-    public TeamService(UserService userService, TeamMemberRepository teamMemberRepository) throws IOException {
-        this.teamRepository = new TeamRepository(userService,teamMemberRepository);
-        teamMemberRepository.setTeamService(this);
+        this.teamRepository = new TeamRepository(userService);
         this.teams = teamRepository.loadTeams();
     }
+
+    private List<Team> teams;
 
     public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws IOException {
         if (teamOwner == null) {
@@ -43,9 +36,12 @@ public class TeamService {
         return newTeam;
     }
 
+    String deniedPermissionString = "Sem permissão";
+
     public String addMember(User loggedUser,Team team,User newMember){
         if(!team.canEditTeamLevel2(loggedUser)){
-            return "Sem permissão";
+            return deniedPermissionString
+            ;
         }
         if(findTeamMember(team, newMember) != null){
             return "usuário já cadastrado.";
@@ -58,7 +54,8 @@ public class TeamService {
     public String removeMember(User loggedUser,Team team,User oldMember){
 
         if(!team.canEditTeamLevel2(loggedUser)){
-            return "Sem permissão";
+            return deniedPermissionString
+            ;
         }
         TeamMember teamMember = findTeamMember(team, oldMember);
         if(teamMember != null){
@@ -70,7 +67,8 @@ public class TeamService {
     public String changeTeamOwner(User loggedUser,Team team,User newTeamOwner){
 
         if(!team.canEditTeamLevel1(loggedUser)){
-            return "Sem permissão";
+            return deniedPermissionString
+            ;
         }
         if(newTeamOwner.getProfileType() != ProfileType.ADMIN && newTeamOwner.getProfileType() != ProfileType.MANAGER){
             return "Usuário não pode ser Lider de time. Verifique o perfil do usário.";
@@ -103,18 +101,14 @@ public class TeamService {
         return null;
     }
 
-    public String updateTeamName(User loggedUser, String newName) {
-        loggedUser.setTeamName(newName);
+    public String updateTeamName(Team team, String newName) {
+        team.setTeamName(newName);
         return "Nome atualizado.";
     }
 
-    public String updateTeamDescription(User loggedUser, String newDescription) {
-        loggedUser.setDescription(newDescription);
+    public String updateTeamDescription(Team team, String newDescription) {
+        team.setDescription(newDescription);
         return "Descrição atualizada.";
     }
 
-    public String updateTeamOwner(User loggedUser, String newOner) {
-        loggedUser.setTeamOwner(newOwner);
-        return "Responsável atualizado.";
-    }
  }
