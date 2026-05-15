@@ -1,6 +1,6 @@
 package enums;
 
-public enum StatusTask {
+public enum StatusTasks {
     PENDING,
     IN_PROGRESS,
     COMPLETED,
