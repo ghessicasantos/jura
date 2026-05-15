@@ -51,7 +51,7 @@ public class ProjectController {
         this.scan = scan;
     }
 
-    public void projectMenuAction() throws IOException {
+    public void projectMenuAction(User loggedUser) throws IOException {
 
         while(true) {
 
@@ -64,6 +64,8 @@ public class ProjectController {
 
             if (option == 1) {
                 createProjectMenu();
+            } else if (option == 2) {
+                editProjectMenu(loggedUser);
             } else {
                 break;
 
@@ -119,7 +121,6 @@ public class ProjectController {
             if(teamService.getTeams().isEmpty()) {
                 System.out.println("Ainda não existem times disponíveis. Crie um time para prosseguir");
                 teamController.createTeamMenu();
-                return;
             } else {
                 for (Team teams : teamService.getTeams()) {
                     System.out.println(teams);
@@ -141,8 +142,16 @@ public class ProjectController {
             }
     }
 
-    public void editTeamMenu(User loggedUser){
+    public void editProjectMenu(User loggedUser){
 
+            System.out.println("Digite o título da tarefa que deseja editar:");
+            projectService.getProjects().forEach(project -> System.out.println(project.getProjectName()));
+            String projectName = scan.nextLine();
+            Project targetProject = projectService.findProjectByName(projectName);
+            if (targetProject == null) {
+                System.out.println("Projeto nao encontrado.");
+                return;
+            }
         while (true){
            System.out.println("Qual informação deseja atualizar?");
            System.out.println("1 - Nome");
@@ -152,6 +161,7 @@ public class ProjectController {
            System.out.println("5 - Status");
            System.out.println("6 - Gerente");
            System.out.println("7 - Time");
+           System.out.println("8 - Voltar");
            
 
            int option = Integer.parseInt(scan.nextLine());
@@ -159,48 +169,53 @@ public class ProjectController {
            if(option == 1){
                System.out.println("Digite o novo nome:");
                String newName = scan.nextLine();
-               String nameUpdated =  projectService.updateProjectName(loggedUser,newName);
+               String nameUpdated =  projectService.changeProjectName(loggedUser, targetProject, newName);
                System.out.println(nameUpdated);
 
            }
            else if(option == 2){
                System.out.println("Digite a nova descrição:");
                String newDescription = scan.nextLine();
-               String descriptionUpdated = projectService.updateProjectDescription(loggedUser,newDescription);
+               String descriptionUpdated = projectService.changeDescription(loggedUser, targetProject, newDescription);
                System.out.println(descriptionUpdated);
 
            } else if (option == 3) {
                System.out.println("Digite a nova data de início:");
                String newDate = scan.nextLine();
-               String dateUpdated = projectService.updateProjectStartDate(loggedUser,newDate);
+               LocalDate newStartDate = LocalDate.parse(newDate);
+               String dateUpdated = projectService.changeStartDate(loggedUser, targetProject, newStartDate);
                System.out.println(dateUpdated);
 
            } else if (option == 4) {
                System.out.println("Digite o novo data de finalização:");
                String newDate = scan.nextLine();
-               String dateUpdated = projectService.updateProjectFinishDate(loggedUser,newDate);
+               LocalDate newFinishDate = LocalDate.parse(newDate);
+               String dateUpdated = projectService.changeFinishDate(loggedUser, targetProject, newFinishDate);
                System.out.println(dateUpdated);
 
             } else if (option == 5) {
                System.out.println("Digite o novo status:");
                String newStatus = scan.nextLine();
-               String statusUpdated = projectService.updateProjectStatus(loggedUser,newStatus);
+               StatusProjects newProjectStatus = StatusProjects.valueOf(newStatus.toUpperCase());
+               String statusUpdated = projectService.changeStatus(loggedUser, targetProject, newProjectStatus);
                System.out.println(statusUpdated);
 
             } else if (option == 6) {
-               System.out.println("Digite o novo gerente:");
+               System.out.println("Digite o novo gerente do projeto:");
                String newProjectManager = scan.nextLine();
-               String projectManagerUpdated = projectService.setProjectManager(loggedUser,newProjectManager);
+               User newProjectManagerUser = userService.findUserByEmail(newProjectManager);
+               String projectManagerUpdated = projectService.changeProjectManager(loggedUser, targetProject, newProjectManagerUser);
                System.out.println(projectManagerUpdated);
 
             } else if (option == 7) {
                System.out.println("Digite o novo time:");
                String newTeam = scan.nextLine();
-               String teamUpdated = projectService.updateProjectTeam(loggedUser,newTeam);
+               Team newProjectTeam = teamService.findTeamByName(newTeam);
+               String teamUpdated = projectService.changeProjectTeam(loggedUser, targetProject, newProjectTeam);
                System.out.println(teamUpdated);
-           
-            } else
+            } else if (option == 8) {
                break;
+            }
         }
     }
 }

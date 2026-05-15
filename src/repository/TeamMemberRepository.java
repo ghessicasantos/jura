@@ -6,6 +6,7 @@ import model.TeamMember;
 import model.User;
 import service.TeamService;
 import service.UserService;
+import enums.CsvFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public class TeamMemberRepository {
 
     private TeamService teamService;
 
+    private static final String FILE_PATH = CsvFile.TEAM_MEMBER.getFileName();
+
     public TeamMemberRepository(UserService userService){
         this.userService = userService;
 
@@ -27,7 +30,7 @@ public class TeamMemberRepository {
     }
 
     public void saveTeamMember(TeamMember teamMember) throws IOException {
-        File file = new File("team_member.csv");
+        File file = new File(FILE_PATH);
 
         boolean fileExists = file.exists();
 
@@ -46,13 +49,13 @@ public class TeamMemberRepository {
 
     public List<TeamMember> loadTeamMembers() throws IOException{
 
-        File file = new File("team_member.csv");
+        File file = new File(FILE_PATH);
 
         List<TeamMember> teamMembers = new ArrayList<>();
 
         if (file.exists()){
 
-        BufferedReader reader = new BufferedReader(new FileReader("team_member.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
 
         String line;
 

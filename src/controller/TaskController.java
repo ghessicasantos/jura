@@ -1,13 +1,11 @@
 package controller;
 
-import enums.StatusTask;
+import enums.StatusTasks;
 import model.Project;
-import model.Team;
 import model.User;
 import model.Task;
 import service.ProjectService;
 import service.TaskService;
-import service.TeamService;
 import service.UserService;
 
 import java.io.IOException;
@@ -19,46 +17,36 @@ public class TaskController {
 
     Scanner scan;
 
-    private TaskService  TaskService;
+    private TaskService  taskService;
 
     private UserService userService;
 
-    private TeamService teamService;
-
     private ProjectService  projectService;
 
-    private TeamController teamController;
+    public TaskController(
+            TaskService  taskService,
+            ProjectService projectService,
+            UserService userService
+
+    ) {
+        this(taskService, projectService, userService, new Scanner(System.in));
+    }
 
     public TaskController(
             TaskService  taskService,
             ProjectService projectService,
             UserService userService,
-            TeamService teamService,
-            TeamController teamController
-
-    ) {
-        this(taskService, projectService, userService, teamService, teamController, new Scanner(System.in));
-    }
-
-    public ProjectController(
-            TaskService  taskService,
-            ProjectService projectService,
-            UserService userService,
-            TeamService teamService,
-            TeamController teamController,
             Scanner scan
 
     ) {
 
-        this.taskService = taskService
+        this.taskService = taskService;
         this.projectService = projectService;
         this.userService = userService;
-        this.teamService = teamService;
-        this.teamController = teamController;
         this.scan = scan;
     }
 
-    public void taskMenuAction() throws IOException {
+    public void taskMenuActions() throws IOException {
 
         while(true) {
 
@@ -73,12 +61,11 @@ public class TaskController {
                 createTaskMenu();
             } else if (option == 2) {
                 editTaskMenu();
-            }
             } else {
                 break;
-
             }
         }
+    }
 
     public void createTaskMenu() throws IOException {
 
@@ -124,33 +111,36 @@ public class TaskController {
                 System.out.println("Dono do projeto nao encontrado.");
                 return;
             }
-            System.out.println("Qual time pertence essa tarefa?");
-            if(teamService.getTeams().isEmpty()) {
-                System.out.println("Ainda não existem times disponíveis. Crie uma tarefa para prosseguir");
-                teamController.createTeamMenu();
-                return;
-            } else {
-                for (Team teams : teamService.getTeams()) {
-                    System.out.println(teams);
+            System.out.println("Qual projeto pertence essa tarefa?");
+            for (Project projects : projectService.getProjects()) {
+                    System.out.println(projects.getProjectName());
                 }
-                Team taskTeam = teamService.findTeamByName(scan.nextLine());
-                if (taskTeam == null) {
-                    System.out.println("Time nao encontrado.");
+                Project taskProject = projectService.findProjectByName(scan.nextLine());
+                if (taskProject == null) {
+                    System.out.println("Projeto nao encontrado.");
                     return;
                 }
 
                 Task newTask;
                 try {
-                    newTask = taskService.createTask(taskTitle, taskDescription, taskStartDate, taskFinishDate, taskStatus, taskOwner, taskTeam);
+                    newTask = taskService.createTask(taskTitle, description, startDate, finishDate, taskStatus, taskOwner, taskProject);
                 } catch (IllegalArgumentException e) {
                     System.out.println(e.getMessage());
                     return;
                 }
                 System.out.println("Nova tarefa criada->" + newTask.getTaskTitle());
             }
-    }
 
-    public void editTaskMenu(User loggedUser){
+    public void editTaskMenu(){
+
+            System.out.println("Digite o título da tarefa que deseja editar:");
+            taskService.getTasks().forEach(task -> System.out.println(task.getTaskTitle()));
+            String taskTitle = scan.nextLine();
+            Task targetTask = taskService.findTaskByTitle(taskTitle);
+            if (targetTask == null) {
+                System.out.println("Tarefa nao encontrada.");
+                return;
+            }
 
         while (true){
            System.out.println("Qual informação deseja atualizar?");
@@ -160,56 +150,54 @@ public class TaskController {
            System.out.println("4 - Data de Finalização");
            System.out.println("5 - Status");
            System.out.println("6 - Owner");
-           System.out.println("7 - Time");
+           System.out.println("7 - Voltar");
            
 
            int option = Integer.parseInt(scan.nextLine());
 
            if(option == 1){
-               System.out.println("Digite o novo nome:");
+               System.out.println("Digite o novo título:");
                String newName = scan.nextLine();
-               String nameUpdated =  projectService.updateProjectName(loggedUser,newName);
+               String nameUpdated =  taskService.changeTaskTitle(targetTask,newName);
                System.out.println(nameUpdated);
 
            }
            else if(option == 2){
                System.out.println("Digite a nova descrição:");
                String newDescription = scan.nextLine();
-               String descriptionUpdated = projectService.updateProjectDescription(loggedUser,newDescription);
+               String descriptionUpdated = taskService.changeDescription( targetTask,newDescription);
                System.out.println(descriptionUpdated);
 
            } else if (option == 3) {
                System.out.println("Digite a nova data de início:");
                String newDate = scan.nextLine();
-               String dateUpdated = projectService.updateProjectStartDate(loggedUser,newDate);
+               LocalDate newStartDate = LocalDate.parse(newDate);
+               String dateUpdated = taskService.changeStartDate(targetTask,newStartDate);
                System.out.println(dateUpdated);
 
            } else if (option == 4) {
                System.out.println("Digite o novo data de finalização:");
                String newDate = scan.nextLine();
-               String dateUpdated = projectService.updateProjectFinishDate(loggedUser,newDate);
+               LocalDate newFinishDate = LocalDate.parse(newDate);
+               String dateUpdated = taskService.changeFinishDate(targetTask,newFinishDate);
                System.out.println(dateUpdated);
 
             } else if (option == 5) {
                System.out.println("Digite o novo status:");
                String newStatus = scan.nextLine();
-               String statusUpdated = projectService.updateProjectStatus(loggedUser,newStatus);
+               StatusTasks newTaskStatus = StatusTasks.valueOf(newStatus.toUpperCase());
+               String statusUpdated = taskService.changeStatus(targetTask,newTaskStatus);
                System.out.println(statusUpdated);
 
             } else if (option == 6) {
-               System.out.println("Digite o novo gerente:");
-               String newProjectManager = scan.nextLine();
-               String projectManagerUpdated = projectService.setProjectManager(loggedUser,newProjectManager);
-               System.out.println(projectManagerUpdated);
+               System.out.println("Digite o novo responsável:");
+               User newTaskOwner = userService.findUserByEmail(scan.nextLine());
+               String taskOwnerupdated = taskService.changeAssignedUser(targetTask, newTaskOwner);
+               System.out.println(taskOwnerupdated);
 
             } else if (option == 7) {
-               System.out.println("Digite o novo time:");
-               String newTeam = scan.nextLine();
-               String teamUpdated = projectService.updateProjectTeam(loggedUser,newTeam);
-               System.out.println(teamUpdated);
-           
-            } else
-               break;
+                break;
+            }
         }
     }
 }

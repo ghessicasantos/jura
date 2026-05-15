@@ -2,6 +2,7 @@ package repository;
 
 import enums.ProfileType;
 import model.User;
+import enums.CsvFile;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -9,8 +10,10 @@ import java.util.List;
 
 public class UserRepository {
 
+    private static final String FILE_PATH = CsvFile.USER.getFileName();
+    
     public void saveUser(User user) throws IOException {
-        File file = new File("user.csv");
+        File file = new File(FILE_PATH);
 
         boolean fileExists = file.exists();
 
@@ -34,13 +37,13 @@ public class UserRepository {
 
     public List<User> loadUsers() throws IOException{
 
-        File file = new File("user.csv");
+        File file = new File(FILE_PATH);
 
         List<User> users = new ArrayList<>();
 
         if (file.exists()){
 
-        BufferedReader reader = new BufferedReader(new FileReader("user.csv"));
+        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
 
         String line;
 

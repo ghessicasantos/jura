@@ -12,10 +12,6 @@ public class UserController {
     private Scanner scan;
     private UserService userService;
 
-    public UserController(UserService userService) throws IOException {
-        this(userService, new Scanner(System.in));
-    }
-
     public UserController(UserService userService, Scanner scan) throws IOException {
         this.userService = userService;
         this.scan = scan;
@@ -127,8 +123,9 @@ public class UserController {
                String profileInput = scan.nextLine();
                String profiletypeUpdated = userService.updateUserProfileType(loggedUser,profileInput);
                System.out.println(profiletypeUpdated);
-           } else
+           } else if (option == 6) {
                break;
+           }
         }
     }
 }

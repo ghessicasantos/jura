@@ -1,7 +1,6 @@
 package model;
 
-import enums.StatusProjects;
-import enums.StatusTask;
+import enums.StatusTasks;
 
 import java.time.LocalDate;
 
@@ -11,19 +10,17 @@ public class Task {
     private String description;
     private LocalDate startDate;
     private LocalDate finishDate;
-    private StatusTask status;
+    private StatusTasks status;
     private User assignedUser;
     private Project project;
-    private Team team;
 
 public Task(String taskTitle,
             String description,
             LocalDate startDate,
             LocalDate finishDate,
-            StatusTask status,
+            StatusTasks status,
             User assignedUser,
-            Project project,
-            Team team){
+            Project project) {
 
     this.taskTitle = taskTitle;
     this.description = description;
@@ -32,7 +29,6 @@ public Task(String taskTitle,
     this.status = status;
     this.assignedUser = assignedUser;
     this.project = project;
-    this.team = team;
 
     }
 
@@ -52,7 +48,7 @@ public Task(String taskTitle,
         return finishDate;
     }
 
-    public StatusTask getStatus() {
+    public StatusTasks getStatus() {
         return status;
     }
 
@@ -62,10 +58,6 @@ public Task(String taskTitle,
 
     public Project getProject() {
         return project;
-    }
-
-    public Team getTeam() {
-        return team;
     }
 
     public void setTaskTitle(String taskTitle) {
@@ -84,7 +76,7 @@ public Task(String taskTitle,
         this.finishDate = finishDate;
     }
 
-    public void setStatus(StatusTask status) {
+    public void setStatus(StatusTasks status) {
         this.status = status;
     }
 
@@ -96,21 +88,16 @@ public Task(String taskTitle,
         this.project = project;
     }
 
-    public void setTeam(Team team) {
-        this.project = project;
-    }
-
     @Override
     public String toString() {
         return "Task{" +
-                "taskName='" + taskName + '\'' +
+                "taskTitle='" + taskTitle + '\'' +
                 ", description='" + description + '\'' +
                 ", startDate=" + startDate +
                 ", finishDate=" + finishDate +
                 ", status=" + status +
                 ", assignedUser=" + assignedUser +
                 ", project=" + project +
-                ", team=" + team +
                 '}';
     }
 }

@@ -101,7 +101,7 @@ public class Project {
 
     public void listTask(){
         for (Task task : tasks){
-            System.out.println(task.getTaskName());
+            System.out.println(task.getTaskTitle());
         }
     }
 
