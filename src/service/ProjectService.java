@@ -7,7 +7,7 @@ import model.Team;
 import model.User;
 import repository.ProjectRepository;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class ProjectService {
 
     private ProjectRepository projectRepository;
 
-    public ProjectService() throws IOException{
+    public ProjectService() throws SQLException {
         this.projectRepository = new ProjectRepository();
         this.projects = projectRepository.loadProject();
     }
@@ -29,7 +29,7 @@ public class ProjectService {
                                 StatusProjects status,
                                 User projectManager,
                                 Team team
-    ) throws IOException {
+    ) throws SQLException {
 
         if (projectManager == null) {
             throw new IllegalArgumentException("Responsavel pelo projeto nao encontrado.");
@@ -55,7 +55,7 @@ public class ProjectService {
 
     String deniedPermissionString = "Usuário não possui escopo para esta operacão.";
 
-    public String changeProjectName(User loggedUser, Project targetProject,String newProjectName){
+    public String changeProjectName(User loggedUser, Project targetProject,String newProjectName) throws SQLException {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
@@ -64,57 +64,65 @@ public class ProjectService {
                 return "Nome do projeto ja existe.";
             }
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setProjectName(newProjectName);
         return "Nome do projeto alterado -> " + newProjectName;
     }
 
-    public String changeDescription(User loggedUser, Project targetProject,String newProjectDescription){
+    public String changeDescription(User loggedUser, Project targetProject,String newProjectDescription) throws SQLException {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setDescription(newProjectDescription);
+        projectRepository.saveProject(targetProject);
         return "Nova descricao definida.";
     }
 
-    public String changeStartDate(User loggedUser, Project targetProject, LocalDate newStartDate){
+    public String changeStartDate(User loggedUser, Project targetProject, LocalDate newStartDate) throws SQLException {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setStartDate(newStartDate);
         return "Nova data de inicio definida -> " + newStartDate;
     }
 
-    public String changeFinishDate(User loggedUser, Project targetProject,LocalDate newFinishDate){
+    public String changeFinishDate(User loggedUser, Project targetProject,LocalDate newFinishDate) throws SQLException {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setFinishDate(newFinishDate);
         return "Nova data de termino definida -> " + newFinishDate;
     }
 
-    public String changeStatus(User loggedUser, Project targetProject,StatusProjects newProjectStatus) {
+    public String changeStatus(User loggedUser, Project targetProject,StatusProjects newProjectStatus) throws SQLException {
         if (!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
             return deniedPermissionString;
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setStatus(newProjectStatus);
         return "Novo Status definido -> " + newProjectStatus;
     }
 
-    public String changeProjectManager(User loggedUser, Project targetProject,User newProjectManager) {
+    public String changeProjectManager(User loggedUser, Project targetProject,User newProjectManager) throws SQLException {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
             return deniedPermissionString;
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setProjectManager(newProjectManager);
         return "Novo responsavel pelo projeto definido -> " + newProjectManager.getFullName();
     }
 
-    public String changeProjectTeam(User loggedUser, Project targetProject,Team newProjectTeam) {
+    public String changeProjectTeam(User loggedUser, Project targetProject,Team newProjectTeam) throws SQLException {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
             return deniedPermissionString;
         }
         if (newProjectTeam == null) {
             return "time nao encontrado.";
         }
+        projectRepository.saveProjectHistory(targetProject);
         targetProject.setTeamOwner(newProjectTeam);
         return "Novo time do projeto definido -> " + newProjectTeam.getTeamName();
     }

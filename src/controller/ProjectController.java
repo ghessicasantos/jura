@@ -8,7 +8,7 @@ import service.ProjectService;
 import service.TeamService;
 import service.UserService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
@@ -51,7 +51,7 @@ public class ProjectController {
         this.scan = scan;
     }
 
-    public void projectMenuAction(User loggedUser) throws IOException {
+    public void projectMenuAction(User loggedUser) throws SQLException {
 
         while(true) {
 
@@ -73,7 +73,7 @@ public class ProjectController {
         }
     }
 
-    public void createProjectMenu() throws IOException {
+    public void createProjectMenu() throws SQLException {
 
             System.out.println("Qual o nome do novo projeto?");
             String projectName = scan.nextLine();
@@ -142,7 +142,7 @@ public class ProjectController {
             }
     }
 
-    public void editProjectMenu(User loggedUser){
+    public void editProjectMenu(User loggedUser) throws SQLException {
 
             System.out.println("Digite o título da tarefa que deseja editar:");
             projectService.getProjects().forEach(project -> System.out.println(project.getProjectName()));

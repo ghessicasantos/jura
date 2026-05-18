@@ -10,7 +10,7 @@ public class TeamMember {
 
         this.user= user;
         this.team = team;
-        this.active = true;
+        this.active = active;
     }
 
     public User getUser() {

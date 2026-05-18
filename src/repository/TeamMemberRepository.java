@@ -1,14 +1,15 @@
 package repository;
 
-
 import model.Team;
 import model.TeamMember;
 import model.User;
 import service.TeamService;
 import service.UserService;
-import enums.CsvFile;
 
-import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,75 +19,69 @@ public class TeamMemberRepository {
 
     private TeamService teamService;
 
-    private static final String FILE_PATH = CsvFile.TEAM_MEMBER.getFileName();
-
-    public TeamMemberRepository(UserService userService){
+    public TeamMemberRepository(UserService userService) {
         this.userService = userService;
-
     }
 
     public void setTeamService(TeamService teamService) {
         this.teamService = teamService;
     }
 
-    public void saveTeamMember(TeamMember teamMember) throws IOException {
-        File file = new File(FILE_PATH);
+    private void save(TeamMember teamMember, String tableName) throws SQLException {
+        String sql = """
+                INSERT INTO %s (
+                    team_member_email,
+                    team_name,
+                    member_status
+                ) VALUES (?, ?, ?)
+                """.formatted(tableName);
 
-        boolean fileExists = file.exists();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        FileWriter writer = new FileWriter(file,true);
+            statement.setString(1, teamMember.getUser().getEmail());
+            statement.setString(2, teamMember.getTeam().getTeamName());
+            statement.setBoolean(3, teamMember.isActive());
 
-        if(!fileExists){
-            writer.write("team_member_email;team;member_status\n");
+            statement.executeUpdate();
         }
-
-        writer.write(teamMember.getUser().getEmail()+ ";"+
-                        teamMember.getTeam().getTeamName()+ ";"+
-                        teamMember.isActive()+ "\n"
-                );
-        writer.close();
     }
 
-    public List<TeamMember> loadTeamMembers() throws IOException{
+    public void saveTeamMember(TeamMember teamMember) throws SQLException {
+        save(teamMember, "team_members");
+    }
 
-        File file = new File(FILE_PATH);
+    public void saveTeamMemberHistory(TeamMember teamMember) throws SQLException {
+        save(teamMember, "team_members_history");
+    }
 
+    public List<TeamMember> loadTeamMembers() throws SQLException {
         List<TeamMember> teamMembers = new ArrayList<>();
 
-        if (file.exists()){
+        String sql = "SELECT * FROM team_members";
 
-        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-        String line;
-
-        boolean firstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                firstLine = false;
-                continue;
-                }
-            String[] data = line.split(";");
-
-                User member = userService.findUserByEmail(data[0]);
-                Team team = teamService.findTeamByName(data[1]);
-                boolean active = Boolean.parseBoolean(data[2]);
+            while (resultSet.next()) {
+                User member = userService.findUserByEmail(resultSet.getString("team_member_email"));
+                Team team = teamService.findTeamByName(resultSet.getString("team_name"));
 
                 if (member == null || team == null) {
                     continue;
                 }
 
-
-            TeamMember teamMember = new TeamMember(
-                    member,
-                    team,
-                    active
-                    );
+                TeamMember teamMember = new TeamMember(
+                        member,
+                        team,
+                        resultSet.getBoolean("member_status")
+                );
 
                 teamMembers.add(teamMember);
             }
-            reader.close();
         }
+
         return teamMembers;
     }
 }

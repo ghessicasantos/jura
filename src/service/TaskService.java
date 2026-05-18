@@ -4,7 +4,7 @@ import enums.StatusTasks;
 import model.*;
 import repository.TaskRepository;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,7 +12,7 @@ public class TaskService {
 
     private TaskRepository taskRepository;
 
-    public TaskService() throws IOException{
+    public TaskService() throws SQLException {
         this.taskRepository = new TaskRepository();
         this.tasks = taskRepository.loadTask();
     }
@@ -26,7 +26,7 @@ public class TaskService {
                             StatusTasks status, 
                             User assignedUser, 
                             Project project
-    )  throws IOException {
+    ) throws SQLException {
 
     if (assignedUser == null) {
         throw new IllegalArgumentException("Responsavel pela tarefa nao encontrado.");
@@ -45,32 +45,38 @@ public class TaskService {
     return newTask;
     }
 
-    public String changeTaskTitle(Task targetTask,String newTaskTitle){
+    public String changeTaskTitle(Task targetTask,String newTaskTitle) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setTaskTitle(newTaskTitle);
         return "Título da tarefa definido -> " + newTaskTitle;
     }
 
-    public String changeDescription(Task targetTask,String newTaskDescription){
+    public String changeDescription(Task targetTask,String newTaskDescription) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setDescription(newTaskDescription);
         return "Descricao definida: " + newTaskDescription;
     }
 
-    public String changeStartDate(Task targetTask, LocalDate newStartDate){
+    public String changeStartDate(Task targetTask, LocalDate newStartDate) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setStartDate(newStartDate);
         return "Data de inicio definida -> " + newStartDate;
     }
 
-    public String changeFinishDate(Task targetTask,LocalDate newFinishDate){
+    public String changeFinishDate(Task targetTask,LocalDate newFinishDate) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setFinishDate(newFinishDate);
         return "Data de termino definida -> " + newFinishDate;
     }
 
-    public String changeStatus(Task targetTask,StatusTasks newTaskStatus) {
+    public String changeStatus(Task targetTask,StatusTasks newTaskStatus) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setStatus(newTaskStatus);
         return "Novo Status definido -> " + newTaskStatus;
     }
 
-    public String changeAssignedUser(Task targetTask,User newAssignedUser) {
+    public String changeAssignedUser(Task targetTask,User newAssignedUser) throws SQLException {
+        taskRepository.saveTaskHistory(targetTask);
         targetTask.setAssignedUser(newAssignedUser);
         return "Responsavel pela tarefa definido -> " + newAssignedUser.getFullName();
     }

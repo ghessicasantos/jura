@@ -8,7 +8,7 @@ import service.ProjectService;
 import service.TaskService;
 import service.UserService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Scanner;
@@ -46,7 +46,7 @@ public class TaskController {
         this.scan = scan;
     }
 
-    public void taskMenuActions() throws IOException {
+    public void taskMenuActions() throws SQLException {
 
         while(true) {
 
@@ -67,7 +67,7 @@ public class TaskController {
         }
     }
 
-    public void createTaskMenu() throws IOException {
+    public void createTaskMenu() throws SQLException {
 
             System.out.println("Qual o título da nova tarefa?");
             String taskTitle = scan.nextLine();
@@ -131,7 +131,7 @@ public class TaskController {
                 System.out.println("Nova tarefa criada->" + newTask.getTaskTitle());
             }
 
-    public void editTaskMenu(){
+    public void editTaskMenu() throws SQLException {
 
             System.out.println("Digite o título da tarefa que deseja editar:");
             taskService.getTasks().forEach(task -> System.out.println(task.getTaskTitle()));

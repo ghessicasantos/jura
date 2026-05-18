@@ -3,8 +3,8 @@ package service;
 import enums.ProfileType;
 import model.User;
 import repository.UserRepository;
-import java.io.IOException;
 import java.util.List;
+import java.sql.SQLException;
 
 
 public class UserService {
@@ -13,7 +13,7 @@ public class UserService {
 
     private UserRepository userRepository;
 
-    public UserService() throws IOException {
+    public UserService() throws SQLException {
         this.userRepository = new UserRepository();
         this.users = userRepository.loadUsers();
     }
@@ -24,7 +24,7 @@ public class UserService {
         users.add(user);
     }
 
-    public String createUser(User user) throws IOException {
+    public String createUser(User user) throws SQLException {
         addUser(user);
 
         userRepository.saveUser(user);
@@ -62,8 +62,9 @@ public class UserService {
         users.remove(userToRemove);
     }
 
-    public String updateUserProfileType(User loggedUser, String newProfileType) {
+    public String updateUserProfileType(User loggedUser, String newProfileType) throws SQLException {
         if (loggedUser.canEditUser()) {
+            userRepository.saveUserHistory(loggedUser);
             ProfileType profileType = ProfileType.valueOf(newProfileType);
             loggedUser.setProfileType(profileType);
             return "Tipo de Perfil atualizado";
@@ -71,30 +72,35 @@ public class UserService {
         return "Não foi possível concluir a operação";
     }
 
-    public String updateUserFullName(User loggedUser, String newFullName) {
+    public String updateUserFullName(User loggedUser, String newFullName) throws SQLException {
+        userRepository.saveUserHistory(loggedUser);
         loggedUser.setFullName(newFullName);
         return "Nome atualizado.";
     }
 
-    public String updateUserEmail(User loggedUser, String newEmail) {
+    public String updateUserEmail(User loggedUser, String newEmail) throws SQLException {
+        userRepository.saveUserHistory(loggedUser);
         loggedUser.setEmail(newEmail);
         return "email atualizado.";
     }
 
-    public String updateUserCargo(User loggedUser, String newCargo) {
+    public String updateUserCargo(User loggedUser, String newCargo) throws SQLException {
+        userRepository.saveUserHistory(loggedUser);
         loggedUser.setCargo(newCargo);
         return "Cargo atualizado.";
     }
 
-    public String updateUserPassword(User loggedUser, User targetUser, String newPassword) {
+    public String updateUserPassword(User loggedUser, User targetUser, String newPassword) throws SQLException {
             if (loggedUser == targetUser) {
+                userRepository.saveUserHistory(targetUser);
                 targetUser.setPassword(newPassword);
                 return "Password atualizado.";
             }
             return "Não foi possível concluir a operação";
     }
 
-    public String updateUserProfileName(User loggedUser, String newProfileName) {
+    public String updateUserProfileName(User loggedUser, String newProfileName) throws SQLException {
+            userRepository.saveUserHistory(loggedUser);
             loggedUser.setProfileName(newProfileName);
                 return "Nome do Perfil atualizado.";
     }

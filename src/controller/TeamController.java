@@ -5,7 +5,7 @@ import model.User;
 import service.TeamService;
 import service.UserService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -33,7 +33,7 @@ public class TeamController {
         this.teamService = teamService;
         this.scan = scan;
     }
-    public void teamMenuActions(User loggedUser) throws IOException {
+    public void teamMenuActions(User loggedUser) throws SQLException {
 
         while (true) {
             System.out.println("O que deseja fazer?");
@@ -53,7 +53,7 @@ public class TeamController {
             }
         }
     }
-    public void createTeamMenu() throws IOException {
+    public void createTeamMenu() throws SQLException {
 
         System.out.println("Qual o nome do time?");
         String name = scan.nextLine();
@@ -79,7 +79,7 @@ public class TeamController {
         System.out.println("Novo Time criado --> "  + newTeam.getTeamName());
     }
 
-    public void editTeamMenu(User loggedUser){
+    public void editTeamMenu(User loggedUser) throws SQLException {
 
             System.out.println("Digite o nome do time que deseja editar:");
             teamService.getTeams().forEach(team -> System.out.println(team.getTeamName()));

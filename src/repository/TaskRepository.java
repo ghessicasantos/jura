@@ -1,91 +1,92 @@
 package repository;
 
 import enums.StatusTasks;
+import model.Project;
 import model.Task;
 import model.User;
-import model.Project;
-import service.UserService;
 import service.ProjectService;
-import enums.CsvFile;
+import service.UserService;
 
-
-import java.io.*;
-import java.time.LocalDate;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepository {
 
-    private static final String FILE_PATH = CsvFile.TASK.getFileName();
+    private void save(Task task, String tableName) throws SQLException {
+        String sql = """
+                INSERT INTO %s (
+                    task_title,
+                    description,
+                    start_date,
+                    finish_date,
+                    status,
+                    assigned_user_email,
+                    project_name
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """.formatted(tableName);
 
-    public void saveTask(Task task) throws IOException {
-        File file = new File(FILE_PATH);
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        boolean fileExists = file.exists();
+            statement.setString(1, task.getTaskTitle());
+            statement.setString(2, task.getDescription());
+            statement.setDate(3, Date.valueOf(task.getStartDate()));
+            statement.setDate(4, Date.valueOf(task.getFinishDate()));
+            statement.setString(5, task.getStatus().name());
+            statement.setString(6, task.getAssignedUser().getEmail());
+            statement.setString(7, task.getProject().getProjectName());
 
-        FileWriter writer = new FileWriter(file,true);
-
-        if(!fileExists){
-            writer.write("task_title;description;start_date;finish_date;status;assigned_user;project; \n");
+            statement.executeUpdate();
         }
-
-        writer.write(task.getTaskTitle()+ ";"+
-                        task.getDescription()+ ";"+
-                        task.getStartDate()+ ";"+
-                        task.getFinishDate()+ ";"+
-                        task.getStatus()+ ";"+
-                        task.getAssignedUser().getEmail()+ ";"+
-                        task.getProject().getProjectName()+ ";"
-                );
-        writer.close();
     }
 
-    public List<Task> loadTask() throws IOException {
+    public void saveTask(Task task) throws SQLException {
+        save(task, "tasks");
+    }
 
+    public void saveTaskHistory(Task task) throws SQLException {
+        save(task, "tasks_history");
+    }
+
+    public List<Task> loadTask() throws SQLException {
         UserService userService = new UserService();
-
         ProjectService projectService = new ProjectService();
-
-        File file = new File(FILE_PATH);
 
         List<Task> tasks = new ArrayList<>();
 
-        if (file.exists()){
+        String sql = "SELECT * FROM tasks";
 
-        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-        String line;
+            while (resultSet.next()) {
+                User assignedUser = userService.findUserByEmail(resultSet.getString("assigned_user_email"));
+                Project project = projectService.findProjectByName(resultSet.getString("project_name"));
 
-        boolean firstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                firstLine = false;
-                continue;
-                }
-            String[] data = line.split(";");
-                if (data.length < 7) {
+                if (assignedUser == null || project == null) {
                     continue;
                 }
 
-                
-            User assignedUser = userService.findUserByEmail(data[5]);
-
-            Project project = projectService.findProjectByName(data[6]);
-
-            Task task = new Task(
-                    data[0],
-                    data[1],
-                    LocalDate.parse(data[2]),
-                    LocalDate.parse(data[3]),
-                    StatusTasks.valueOf(data[4]),
-                    assignedUser,
-                    project);
+                Task task = new Task(
+                        resultSet.getString("task_title"),
+                        resultSet.getString("description"),
+                        resultSet.getDate("start_date").toLocalDate(),
+                        resultSet.getDate("finish_date").toLocalDate(),
+                        StatusTasks.valueOf(resultSet.getString("status")),
+                        assignedUser,
+                        project
+                );
 
                 tasks.add(task);
             }
-            reader.close();
         }
+
         return tasks;
     }
 }

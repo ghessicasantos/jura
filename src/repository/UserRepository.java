@@ -1,87 +1,82 @@
 package repository;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.ResultSet;
 import enums.ProfileType;
 import model.User;
-import enums.CsvFile;
-
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserRepository {
-
-    private static final String FILE_PATH = CsvFile.USER.getFileName();
     
-    public void saveUser(User user) throws IOException {
-        File file = new File(FILE_PATH);
+    private void save(User user, String tableName) throws SQLException {
+        String sql = """
+            INSERT INTO %s (
+                full_name,
+                cpf,
+                email,
+                cargo,
+                login,
+                password,
+                profile_name,
+                profile_type
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """.formatted(tableName);
 
-        boolean fileExists = file.exists();
+        try(
+        Connection connection = DatabaseConnection.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1, user.getFullName());
+            statement.setString(2, user.getCpf());
+            statement.setString(3, user.getEmail());
+            statement.setString(4, user.getCargo());
+            statement.setString(5, user.getLogin());
+            statement.setString(6, user.getPassword());
+            statement.setString(7, user.getProfileName());
+            statement.setString(8, user.getProfileType().name());
 
-        FileWriter writer = new FileWriter(file,true);
-
-        if(!fileExists){
-            writer.write("full_name;cpf;email;cargo;login;password;profile_name;profile_type \n");
+            statement.executeUpdate();
         }
 
-        writer.write(user.getFullName()+ ";"+
-                        user.getCpf()+ ";"+
-                        user.getEmail()+ ";"+
-                        user.getCargo()+ ";"+
-                        user.getLogin()+ ";"+
-                        user.getPassword()+ ";"+
-                        user.getProfileName()+ ";"+
-                        user.getProfileType()+ "\n"
-                );
-        writer.close();
     }
 
-    public List<User> loadUsers() throws IOException{
+    public void saveUser(User user) throws SQLException {
+        save(user, "users");
+    }
 
-        File file = new File(FILE_PATH);
+    public void saveUserHistory(User user) throws SQLException {
+        save(user, "users_history");
+    }
+
+    public List<User> loadUsers() throws SQLException{
 
         List<User> users = new ArrayList<>();
 
-        if (file.exists()){
+        String sql = "SELECT * FROM users";
 
-        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
+        try(Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery()){
 
-        String line;
-
-        boolean firstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                firstLine = false;
-                continue;
-                }
-            String[] data = line.split(";");
-
-            User user = new User(
-                    data[0],
-                    data[1],
-                    data[2],
-                    data[3],
-                    data[4],
-                    data[5],
-                    data[6],
-                    ProfileType.valueOf(data[7]));
-
+            while (resultSet.next()){
+                User user = new User(
+                        resultSet.getLong("id"),
+                        resultSet.getString("full_name"),
+                        resultSet.getString("cpf"),
+                        resultSet.getString("email"),
+                        resultSet.getString("cargo"),
+                        resultSet.getString("login"),
+                        resultSet.getString("password"),
+                        resultSet.getString("profile_name"),
+                        ProfileType.valueOf(resultSet.getString("profile_type"))
+                        );
                 users.add(user);
             }
-            reader.close();
         }
-        if(users.isEmpty()){
-                List<User> defaultUser = new ArrayList<>();
-
-                User admin = new User("admin","00000000000","admin.email@email.com","admin","admin","12345678!@","admin",ProfileType.ADMIN);
-
-                defaultUser.add(admin);
-
-                saveUser(admin);
-
-                return defaultUser;
-
-            }
         return users;
     }
+
 }
+

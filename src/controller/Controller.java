@@ -6,7 +6,7 @@ import service.TeamService;
 import service.UserService;
 import service.TaskService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Controller {
@@ -30,7 +30,7 @@ public class Controller {
     private TaskController taskController;
 
 
-    public Controller() throws IOException{
+    public Controller() throws SQLException {
         this.userService = new UserService();
         this.userController = new UserController(userService, scan);
         this.projectService = new ProjectService();
@@ -41,7 +41,7 @@ public class Controller {
         this.projectController = new ProjectController(projectService,userService,teamService,teamController, scan);
     }
 
-    public void start() throws IOException{
+    public void start() throws SQLException{
 
         User loggedUser = null;
 

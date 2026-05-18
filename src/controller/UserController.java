@@ -3,8 +3,7 @@ package controller;
 import enums.ProfileType;
 import model.User;
 import service.UserService;
-
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class UserController {
@@ -12,12 +11,12 @@ public class UserController {
     private Scanner scan;
     private UserService userService;
 
-    public UserController(UserService userService, Scanner scan) throws IOException {
+    public UserController(UserService userService, Scanner scan) throws SQLException {
         this.userService = userService;
         this.scan = scan;
     }
 
-    public void userMenuActions(User user) throws IOException {
+    public void userMenuActions(User user) throws SQLException{
         while (true) {
 
             System.out.println("O que deseja fazer?");
@@ -40,7 +39,7 @@ public class UserController {
         }
     }
 
-    public void createUserMenu() throws IOException {
+    public void createUserMenu() throws SQLException {
 
         System.out.println("Digite o nome completo:");
         String name = scan.nextLine();
@@ -80,7 +79,7 @@ public class UserController {
 
     }
 
-    public void editUserMenu(User loggedUser){
+    public void editUserMenu(User loggedUser) throws SQLException {
 
         while (true){
            System.out.println("Qual informação deseja atualizar?");
