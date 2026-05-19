@@ -55,6 +55,25 @@ public class TeamMemberRepository {
         save(teamMember, "team_members_history");
     }
 
+    public void updateTeamMemberStatus(TeamMember teamMember) throws SQLException {
+        String sql = """
+                UPDATE team_members
+                SET member_status = ?
+                WHERE team_member_email = ?
+                AND team_name = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setBoolean(1, teamMember.isActive());
+            statement.setString(2, teamMember.getUser().getEmail());
+            statement.setString(3, teamMember.getTeam().getTeamName());
+
+            statement.executeUpdate();
+        }
+    }
+
     public List<TeamMember> loadTeamMembers() throws SQLException {
         List<TeamMember> teamMembers = new ArrayList<>();
 

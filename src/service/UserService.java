@@ -94,9 +94,30 @@ public class UserService {
             if (loggedUser == targetUser) {
                 userRepository.saveUserHistory(targetUser);
                 targetUser.setPassword(newPassword);
+                userRepository.updateUserPassword(targetUser);
                 return "Password atualizado.";
             }
             return "Não foi possível concluir a operação";
+    }
+
+    public String recoverPassword(String email, String cpf, String newPassword) throws SQLException {
+        User user = findUserByEmail(email);
+
+        if (user == null) {
+            return "Usuario nao encontrado.";
+        }
+        if (!user.getCpf().equals(cpf)) {
+            return "CPF invalido para esse usuario.";
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            return "A nova senha nao pode ser vazia.";
+        }
+
+        userRepository.saveUserHistory(user);
+        user.setPassword(newPassword);
+        userRepository.updateUserPassword(user);
+
+        return "Senha atualizada. Realize o login novamente.";
     }
 
     public String updateUserProfileName(User loggedUser, String newProfileName) throws SQLException {

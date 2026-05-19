@@ -2,6 +2,7 @@ package controller;
 
 import model.Team;
 import model.User;
+import service.TeamMemberService;
 import service.TeamService;
 import service.UserService;
 
@@ -16,6 +17,8 @@ public class TeamController {
     private UserService userService;
 
     private TeamService teamService;
+
+    private TeamMemberController teamMemberController;
 
     public TeamController(
             UserService userService,
@@ -32,6 +35,11 @@ public class TeamController {
         this.userService = userService;
         this.teamService = teamService;
         this.scan = scan;
+        this.teamMemberController = new TeamMemberController(
+                userService,
+                new TeamMemberService(userService, teamService),
+                scan
+        );
     }
     public void teamMenuActions(User loggedUser) throws SQLException {
 
@@ -39,7 +47,8 @@ public class TeamController {
             System.out.println("O que deseja fazer?");
             System.out.println("1 - Criar time");
             System.out.println("2 - Editar time");
-            System.out.println("3 - Voltar");
+            System.out.println("3 - Membros do time");
+            System.out.println("4 - Voltar");
 
             int option = Integer.parseInt(scan.nextLine());
 
@@ -47,7 +56,9 @@ public class TeamController {
                 createTeamMenu();
             } else if (option == 2) {
                 editTeamMenu(loggedUser);
-            } else {
+            } else if (option == 3) {
+                teamMemberController.teamMemberMenuActions(loggedUser);
+            } else if (option == 4) {
                 break;
 
             }

@@ -50,6 +50,23 @@ public class UserRepository {
         save(user, "users_history");
     }
 
+    public void updateUserPassword(User user) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET password = ?
+                WHERE email = ?
+                """;
+
+        try(Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)){
+
+            statement.setString(1, user.getPassword());
+            statement.setString(2, user.getEmail());
+
+            statement.executeUpdate();
+        }
+    }
+
     public List<User> loadUsers() throws SQLException{
 
         List<User> users = new ArrayList<>();

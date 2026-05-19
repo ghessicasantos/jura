@@ -25,6 +25,10 @@ public class TeamMember {
         return active;
     }
 
+    public void activate() {
+        this.active = true;
+    }
+
     public void deactivate() {
         this.active = false;
     }
