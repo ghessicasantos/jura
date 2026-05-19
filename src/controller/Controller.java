@@ -6,7 +6,7 @@ import service.TeamService;
 import service.UserService;
 import service.TaskService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Controller {
@@ -30,7 +30,7 @@ public class Controller {
     private TaskController taskController;
 
 
-    public Controller() throws IOException{
+    public Controller() throws SQLException {
         this.userService = new UserService();
         this.userController = new UserController(userService, scan);
         this.projectService = new ProjectService();
@@ -41,7 +41,7 @@ public class Controller {
         this.projectController = new ProjectController(projectService,userService,teamService,teamController, scan);
     }
 
-    public void start() throws IOException{
+    public void start() throws SQLException{
 
         User loggedUser = null;
 
@@ -57,8 +57,16 @@ public class Controller {
         loggedUser = userService.login(email, password);
 
         if(loggedUser == null){
-                System.out.println("Usuário ou senha inválidos");
-            }
+                System.out.println("Usuario ou senha invalidos");
+                System.out.println("1 - Tentar novamente");
+                System.out.println("2 - Recuperar senha");
+                int option = Integer.parseInt(scan.nextLine());
+
+                if (option == 2) {
+                    recoverPasswordMenu();
+                }
+                continue;
+        }
         }
         while (true){
             System.out.println("Selecione uma das opções abaixo:");
@@ -87,5 +95,19 @@ public class Controller {
 
             }
         }
+    }
+
+    private void recoverPasswordMenu() throws SQLException {
+        System.out.println("Digite seu Email:");
+        String email = scan.nextLine();
+
+        System.out.println("Digite seu CPF:");
+        String cpf = scan.nextLine();
+
+        System.out.println("Digite a nova senha:");
+        String newPassword = scan.nextLine();
+
+        String result = userService.recoverPassword(email, cpf, newPassword);
+        System.out.println(result);
     }
 }

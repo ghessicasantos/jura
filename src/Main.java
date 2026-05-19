@@ -1,11 +1,11 @@
 import controller.Controller;
 
-import java.io.IOException;
+import java.sql.SQLException;
 
-public class Main{
+public class Main {
 
-public static void main(String[] args) throws IOException {
-    Controller app = new Controller();
-    app.start();
+    public static void main(String[] args) throws SQLException {
+        Controller app = new Controller();
+        app.start();
     }
 }

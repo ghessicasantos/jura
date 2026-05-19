@@ -4,6 +4,7 @@ import enums.ProfileType;
 
 public class User {
 
+    private Long id;
     private String fullName;
     private String cpf;
     private String email;
@@ -33,6 +34,30 @@ public class User {
         this.profileName = profileName;
         this.profileType = profileType;
 
+    }
+
+    public User(Long id,
+                String fullName,
+                String cpf,
+                String email,
+                String cargo,
+                String login,
+                String password,
+                String profileName,
+                ProfileType profileType) {
+        this.id = id;
+        this.fullName = fullName;
+        this.cpf = cpf;
+        this.email = email;
+        this.cargo = cargo;
+        this.login = login;
+        this.password = password;
+        this.profileName = profileName;
+        this.profileType = profileType;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getFullName() {
@@ -100,16 +125,14 @@ public class User {
     }
 
     public boolean canEditUser(){
-        if(profileType == profileType.MANAGER ){
-        return true;
-        }
-        return false;
+       return profileType ==  ProfileType.MANAGER;
     }
 
     @Override
     public String toString() {
         return "Users{" +
-                "fullName='" + fullName + '\'' +
+                "Id='" + id + '\'' +
+                ", fullName='" + fullName + '\'' +
                 ", cpf='" + cpf + '\'' +
                 ", email='" + email + '\'' +
                 ", cargo='" + cargo + '\'' +

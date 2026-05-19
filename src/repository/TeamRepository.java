@@ -3,83 +3,80 @@ package repository;
 import model.Team;
 import model.User;
 import service.UserService;
-import java.io.*;
-import java.time.LocalDate;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import enums.CsvFile;
 
 public class TeamRepository {
 
     private UserService userService;
 
-    private static final String FILE_PATH = CsvFile.TEAM.getFileName();
-
-    public TeamRepository(UserService userService){
+    public TeamRepository(UserService userService) {
         this.userService = userService;
-
     }
 
-    public void saveTeam(Team team) throws IOException {
-        File file = new File(FILE_PATH);
+    private void save(Team team, String tableName) throws SQLException {
+        String sql = """
+                INSERT INTO %s (
+                    team_name,
+                    description,
+                    team_owner_email,
+                    created_at
+                ) VALUES (?, ?, ?, ?)
+                """.formatted(tableName);
 
-        boolean fileExists = file.exists();
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        FileWriter writer = new FileWriter(file,true);
+            statement.setString(1, team.getTeamName());
+            statement.setString(2, team.getDescription());
+            statement.setString(3, team.getTeamOwner().getEmail());
+            statement.setDate(4, Date.valueOf(team.getCreatedAt()));
 
-        if(!fileExists){
-            writer.write("team_name;description;team_owner_email;created_at\n");
+            statement.executeUpdate();
         }
-
-        writer.write(team.getTeamName()+ ";"+
-                        team.getDescription()+ ";"+
-                        team.getTeamOwner().getEmail()+ ";"+
-                        team.getCreatedAt()+ "\n"
-                );
-        writer.close();
     }
 
-    public List<Team> loadTeams() throws IOException{
+    public void saveTeam(Team team) throws SQLException {
+        save(team, "teams");
+    }
 
-        File file = new File(FILE_PATH);
+    public void saveTeamHistory(Team team) throws SQLException {
+        save(team, "teams_history");
+    }
 
+    public List<Team> loadTeams() throws SQLException {
         List<Team> teams = new ArrayList<>();
 
-        if (file.exists()){
+        String sql = "SELECT * FROM teams";
 
-        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-        String line;
+            while (resultSet.next()) {
+                User teamOwner = userService.findUserByEmail(resultSet.getString("team_owner_email"));
 
-        boolean firstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                firstLine = false;
-                continue;
-                }
-            String[] data = line.split(";");
-                if (data.length < 4) {
-                    continue;
-                }
-
-                User teamOwner = userService.findUserByEmail(data[2]);
                 if (teamOwner == null) {
                     continue;
                 }
-                LocalDate createdAt = LocalDate.parse(data[3]);
 
+                Team team = new Team(
+                        resultSet.getString("team_name"),
+                        resultSet.getString("description"),
+                        teamOwner,
+                        resultSet.getDate("created_at").toLocalDate()
+                );
 
-            Team team = new Team(
-                    data[0],
-                    data[1],
-                    teamOwner,
-                    createdAt
-                    );
                 teams.add(team);
             }
-            reader.close();
         }
+
         return teams;
     }
 }

@@ -10,7 +10,7 @@ public class TeamMember {
 
         this.user= user;
         this.team = team;
-        this.active = true;
+        this.active = active;
     }
 
     public User getUser() {
@@ -23,6 +23,10 @@ public class TeamMember {
 
     public boolean isActive() {
         return active;
+    }
+
+    public void activate() {
+        this.active = true;
     }
 
     public void deactivate() {

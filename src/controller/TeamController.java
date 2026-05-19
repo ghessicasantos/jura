@@ -2,10 +2,11 @@ package controller;
 
 import model.Team;
 import model.User;
+import service.TeamMemberService;
 import service.TeamService;
 import service.UserService;
 
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Scanner;
 
@@ -16,6 +17,8 @@ public class TeamController {
     private UserService userService;
 
     private TeamService teamService;
+
+    private TeamMemberController teamMemberController;
 
     public TeamController(
             UserService userService,
@@ -32,14 +35,20 @@ public class TeamController {
         this.userService = userService;
         this.teamService = teamService;
         this.scan = scan;
+        this.teamMemberController = new TeamMemberController(
+                userService,
+                new TeamMemberService(userService, teamService),
+                scan
+        );
     }
-    public void teamMenuActions(User loggedUser) throws IOException {
+    public void teamMenuActions(User loggedUser) throws SQLException {
 
         while (true) {
             System.out.println("O que deseja fazer?");
             System.out.println("1 - Criar time");
             System.out.println("2 - Editar time");
-            System.out.println("3 - Voltar");
+            System.out.println("3 - Membros do time");
+            System.out.println("4 - Voltar");
 
             int option = Integer.parseInt(scan.nextLine());
 
@@ -47,13 +56,15 @@ public class TeamController {
                 createTeamMenu();
             } else if (option == 2) {
                 editTeamMenu(loggedUser);
-            } else {
+            } else if (option == 3) {
+                teamMemberController.teamMemberMenuActions(loggedUser);
+            } else if (option == 4) {
                 break;
 
             }
         }
     }
-    public void createTeamMenu() throws IOException {
+    public void createTeamMenu() throws SQLException {
 
         System.out.println("Qual o nome do time?");
         String name = scan.nextLine();
@@ -79,7 +90,7 @@ public class TeamController {
         System.out.println("Novo Time criado --> "  + newTeam.getTeamName());
     }
 
-    public void editTeamMenu(User loggedUser){
+    public void editTeamMenu(User loggedUser) throws SQLException {
 
             System.out.println("Digite o nome do time que deseja editar:");
             teamService.getTeams().forEach(team -> System.out.println(team.getTeamName()));

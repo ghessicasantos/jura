@@ -4,8 +4,9 @@ import enums.ProfileType;
 import model.Team;
 import model.TeamMember;
 import model.User;
+import repository.TeamMemberRepository;
 import repository.TeamRepository;
-import java.io.IOException;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -13,14 +14,22 @@ public class TeamService {
 
     private TeamRepository teamRepository;
 
-    public TeamService(UserService userService) throws IOException {
+    private TeamMemberRepository teamMemberRepository;
+
+    public TeamService(UserService userService) throws SQLException {
         this.teamRepository = new TeamRepository(userService);
         this.teams = teamRepository.loadTeams();
+        this.teamMemberRepository = new TeamMemberRepository(userService);
+        this.teamMemberRepository.setTeamService(this);
+
+        for (TeamMember member : teamMemberRepository.loadTeamMembers()) {
+            member.getTeam().addMember(member);
+        }
     }
 
     private List<Team> teams;
 
-    public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws IOException {
+    public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws SQLException {
         if (teamOwner == null) {
             throw new IllegalArgumentException("Responsavel pelo time nao encontrado.");
         }
@@ -38,7 +47,7 @@ public class TeamService {
 
     String deniedPermissionString = "Sem permissão";
 
-    public String addMember(User loggedUser,Team team,User newMember){
+    public String addMember(User loggedUser,Team team,User newMember) throws SQLException {
         if(!team.canEditTeamLevel2(loggedUser)){
             return deniedPermissionString
             ;
@@ -48,10 +57,11 @@ public class TeamService {
         }
         TeamMember teamMember = new TeamMember(newMember, team,true);
         team.getMembers().add(teamMember);
+        teamMemberRepository.saveTeamMember(teamMember);
         return "Novo membro adicionado.";
     }
 
-    public String removeMember(User loggedUser,Team team,User oldMember){
+    public String removeMember(User loggedUser,Team team,User oldMember) throws SQLException {
 
         if(!team.canEditTeamLevel2(loggedUser)){
             return deniedPermissionString
@@ -59,12 +69,13 @@ public class TeamService {
         }
         TeamMember teamMember = findTeamMember(team, oldMember);
         if(teamMember != null){
+            teamMemberRepository.saveTeamMemberHistory(teamMember);
             teamMember.deactivate();
         }
         return "Membro removido do time -> "+ oldMember.getFullName();
     }
 
-    public String changeTeamOwner(User loggedUser,Team team,User newTeamOwner){
+    public String changeTeamOwner(User loggedUser,Team team,User newTeamOwner) throws SQLException {
 
         if(!team.canEditTeamLevel1(loggedUser)){
             return deniedPermissionString
@@ -73,6 +84,7 @@ public class TeamService {
         if(newTeamOwner.getProfileType() != ProfileType.ADMIN && newTeamOwner.getProfileType() != ProfileType.MANAGER){
             return "Usuário não pode ser Lider de time. Verifique o perfil do usário.";
         }
+        teamRepository.saveTeamHistory(team);
         team.setTeamOwner(newTeamOwner);
         return "Novo responsável definido -> " + newTeamOwner.getFullName();
     }
@@ -101,12 +113,14 @@ public class TeamService {
         return null;
     }
 
-    public String updateTeamName(Team team, String newName) {
+    public String updateTeamName(Team team, String newName) throws SQLException {
+        teamRepository.saveTeamHistory(team);
         team.setTeamName(newName);
         return "Nome atualizado.";
     }
 
-    public String updateTeamDescription(Team team, String newDescription) {
+    public String updateTeamDescription(Team team, String newDescription) throws SQLException {
+        teamRepository.saveTeamHistory(team);
         team.setDescription(newDescription);
         return "Descrição atualizada.";
     }

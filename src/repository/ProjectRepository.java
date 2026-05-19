@@ -6,87 +6,87 @@ import model.Team;
 import model.User;
 import service.TeamService;
 import service.UserService;
-import enums.CsvFile;
 
-import java.io.*;
-import java.time.LocalDate;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectRepository {
 
-    private static final String FILE_PATH = CsvFile.PROJECT.getFileName();
+    private void save(Project project, String tableName) throws SQLException {
+        String sql = """
+                INSERT INTO %s (
+                    project_name,
+                    description,
+                    start_date,
+                    finish_date,
+                    status,
+                    project_manager_email,
+                    team_owner_name
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                """.formatted(tableName);
 
-    public void saveProject(Project project) throws IOException {
-        File file = new File(FILE_PATH);
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        boolean fileExists = file.exists();
+            statement.setString(1, project.getProjectName());
+            statement.setString(2, project.getDescription());
+            statement.setDate(3, Date.valueOf(project.getStartDate()));
+            statement.setDate(4, Date.valueOf(project.getFinishDate()));
+            statement.setString(5, project.getStatus().name());
+            statement.setString(6, project.getProjectManager().getEmail());
+            statement.setString(7, project.getTeamOwner().getTeamName());
 
-        FileWriter writer = new FileWriter(file,true);
-
-        if(!fileExists){
-            writer.write("project_name;description;start_date;finish_date;status;project_manager;team_owner \n");
+            statement.executeUpdate();
         }
-
-        writer.write(project.getProjectName()+ ";"+
-                        project.getDescription()+ ";"+
-                        project.getStartDate()+ ";"+
-                        project.getFinishDate()+ ";"+
-                        project.getStatus()+ ";"+
-                        project.getProjectManager().getEmail()+ ";"+
-                        project.getTeamOwner().getTeamName()+ "\n"
-                );
-        writer.close();
     }
 
-    public List<Project> loadProject() throws IOException{
+    public void saveProject(Project project) throws SQLException {
+        save(project, "projects");
+    }
 
+    public void saveProjectHistory(Project project) throws SQLException {
+        save(project, "project_history");
+    }
+
+    public List<Project> loadProject() throws SQLException {
         UserService userService = new UserService();
-
         TeamService teamService = new TeamService(userService);
-
-        File file = new File(FILE_PATH);
 
         List<Project> projects = new ArrayList<>();
 
-        if (file.exists()){
+        String sql = "SELECT * FROM projects";
 
-        BufferedReader reader = new BufferedReader(new FileReader(FILE_PATH));
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
 
-        String line;
+            while (resultSet.next()) {
+                User projectManager = userService.findUserByEmail(resultSet.getString("project_manager_email"));
+                Team projectTeam = teamService.findTeamByName(resultSet.getString("team_owner_name"));
 
-        boolean firstLine = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                firstLine = false;
-                continue;
-                }
-            String[] data = line.split(";");
-                if (data.length < 7) {
-                    continue;
-                }
-
-                User projectManager = userService.findUserByEmail(data[5]);
-                Team projectTeam = teamService.findTeamByName(data[6]);
                 if (projectManager == null || projectTeam == null) {
                     continue;
                 }
 
-
-            Project project = new Project(
-                    data[0],
-                    data[1],
-                    LocalDate.parse(data[2]),
-                    LocalDate.parse(data[3]),
-                    StatusProjects.valueOf(data[4]),
-                    projectManager,
-                    projectTeam);
+                Project project = new Project(
+                        resultSet.getString("project_name"),
+                        resultSet.getString("description"),
+                        resultSet.getDate("start_date").toLocalDate(),
+                        resultSet.getDate("finish_date").toLocalDate(),
+                        StatusProjects.valueOf(resultSet.getString("status")),
+                        projectManager,
+                        projectTeam
+                );
 
                 projects.add(project);
             }
-            reader.close();
         }
+
         return projects;
     }
 }
