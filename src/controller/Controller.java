@@ -2,6 +2,7 @@ package controller;
 
 import model.User;
 import service.ProjectService;
+import service.ReportService;
 import service.TeamService;
 import service.UserService;
 import service.TaskService;
@@ -21,6 +22,10 @@ public class Controller {
 
     private ProjectController projectController;
 
+    private ReportService reportService;
+
+    private ReportController reportController;
+
     private TeamController teamController;
 
     private TeamService teamService;
@@ -39,9 +44,14 @@ public class Controller {
         this.taskService = new TaskService();
         this.taskController = new TaskController(taskService, projectService, userService, scan);
         this.projectController = new ProjectController(projectService,userService,teamService,teamController, scan);
+        this.reportService = new ReportService(projectService);
+        this.reportController = new ReportController(reportService, scan);
     }
 
+
     public void start() throws SQLException{
+
+        userService.initializeUserSystem();
 
         User loggedUser = null;
 
@@ -74,7 +84,8 @@ public class Controller {
             System.out.println("2 - Team");
             System.out.println("3 - Task");
             System.out.println("4 - Projeto");
-            System.out.println("5 - Sair");
+            System.out.println("5 - Relatorios");
+            System.out.println("6 - Sair");
 
             int option = Integer.parseInt(scan.nextLine());
 
@@ -91,6 +102,9 @@ public class Controller {
                 projectController.projectMenuAction(loggedUser);
 
             } else if (option == 5) {
+                reportController.reportMenuActions();
+
+            } else if (option == 6) {
                 break;
 
             }
