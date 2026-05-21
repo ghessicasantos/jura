@@ -5,6 +5,7 @@ import model.User;
 import repository.UserRepository;
 import java.util.List;
 import java.sql.SQLException;
+import java.util.Scanner;
 
 
 public class UserService {
@@ -90,15 +91,6 @@ public class UserService {
         return "Cargo atualizado.";
     }
 
-    public String updateUserPassword(User loggedUser, User targetUser, String newPassword) throws SQLException {
-            if (loggedUser == targetUser) {
-                userRepository.saveUserHistory(targetUser);
-                targetUser.setPassword(newPassword);
-                userRepository.updateUserPassword(targetUser);
-                return "Password atualizado.";
-            }
-            return "Não foi possível concluir a operação";
-    }
 
     public String recoverPassword(String email, String cpf, String newPassword) throws SQLException {
         User user = findUserByEmail(email);
@@ -145,5 +137,32 @@ public class UserService {
             return null;
         }
         return user;
+    }
+
+    public void initializeUserSystem() throws SQLException {
+
+        if (getUsers().isEmpty()) {
+
+            User admin = new User(
+                    "Administrador",
+                    "0000",
+                    "admin@email.com",
+                    "admin",
+                    "admin",
+                    "12345678!@",
+                    "ADMIN",
+                    ProfileType.ADMIN
+            );
+
+            userRepository.saveUser(admin);
+
+            System.out.println("Para continuar, redefina a senha da conta administradora.");
+            System.out.println("Digite a nova senha:");
+            Scanner scan = new Scanner(System.in);
+            String newpass = scan.nextLine();
+            String recovery = recoverPassword("admin@email.com","000",newpass);
+            System.out.println(recovery);
+
+        }
     }
 }
