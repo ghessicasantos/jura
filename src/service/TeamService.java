@@ -6,21 +6,25 @@ import model.TeamMember;
 import model.User;
 import repository.TeamMemberRepository;
 import repository.TeamRepository;
+import repository.UserRepository;
+
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
 public class TeamService {
+    private UserRepository userRepository;
 
     private TeamRepository teamRepository;
 
     private TeamMemberRepository teamMemberRepository;
 
-    public TeamService(UserService userService) throws SQLException {
-        this.teamRepository = new TeamRepository(userService);
+    public TeamService() throws SQLException {
+        this.userRepository = new UserRepository();
+        this.teamRepository = new TeamRepository(userRepository);
         this.teams = teamRepository.loadTeams();
-        this.teamMemberRepository = new TeamMemberRepository(userService);
-        this.teamMemberRepository.setTeamService(this);
+        this.teamMemberRepository = new TeamMemberRepository(userRepository);
+        this.teamMemberRepository.setTeamService(teamRepository);
 
         for (TeamMember member : teamMemberRepository.loadTeamMembers()) {
             member.getTeam().addMember(member);
@@ -29,20 +33,18 @@ public class TeamService {
 
     private List<Team> teams;
 
-    public Team createTeam(String teamName, String description, User teamOwner, LocalDate createdAt) throws SQLException {
-        if (teamOwner == null) {
+    public Team createTeam(Team team) throws SQLException {
+        if (team.getTeamOwner() == null) {
             throw new IllegalArgumentException("Responsavel pelo time nao encontrado.");
         }
-        if (findTeamByName(teamName) != null) {
+        if (findTeamByName(team.getTeamName()) != null) {
             throw new IllegalArgumentException("Ja existe um time com esse nome.");
         }
 
-        Team newTeam = new Team(teamName,description,teamOwner,createdAt);
+        teamRepository.saveTeam(team);
+        teams.add(team);
 
-        teamRepository.saveTeam(newTeam);
-        teams.add(newTeam);
-
-        return newTeam;
+        return team;
     }
 
     String deniedPermissionString = "Sem permissão";

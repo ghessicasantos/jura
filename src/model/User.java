@@ -124,22 +124,14 @@ public class User {
         this.profileType = profileType;
     }
 
-    public boolean canEditUser(){
-       return profileType ==  ProfileType.MANAGER;
-    }
 
     @Override
     public String toString() {
-        return "Users{" +
-                "Id='" + id + '\'' +
-                ", fullName='" + fullName + '\'' +
-                ", cpf='" + cpf + '\'' +
-                ", email='" + email + '\'' +
-                ", cargo='" + cargo + '\'' +
-                ", login='" + login + '\'' +
-                ", password='" + password + '\'' +
-                ", profileName='" + profileName + '\'' +
-                ", profileType=" + profileType +
-                '}';
+        return email;
+    }
+
+    public Long setId(int id) {
+        return getId();
     }
 }
+

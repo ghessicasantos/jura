@@ -67,6 +67,36 @@ public class UserRepository {
         }
     }
 
+
+    public void updateUser(User user) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET full_name = ?,
+                    email = ?,
+                    cargo = ?,
+                    profile_name = ?,
+                    profile_type = ?
+                WHERE id = ?
+                """;
+
+        try(Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)){
+
+            statement.setString(1, user.getFullName());
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getCargo());
+            statement.setString(4, user.getProfileName());
+            statement.setString(5, user.getProfileType().name());
+            statement.setLong(6, user.getId());
+
+            int rowsAffected = statement.executeUpdate();
+
+            System.out.println("Linhas atualizadas: " + rowsAffected);
+            System.out.println("ID enviado: " + user.getId());
+        }
+    }
+
+
     public List<User> loadUsers() throws SQLException{
 
         List<User> users = new ArrayList<>();
@@ -95,5 +125,63 @@ public class UserRepository {
         return users;
     }
 
+    public List<User> findAllUsers() throws SQLException {
+
+        List<User> users = new ArrayList<>();
+
+        String sql = "SELECT * FROM users";
+
+        try (
+                Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql);
+                ResultSet rs = statement.executeQuery()
+        ) {
+
+            while (rs.next()) {
+
+                User user = new User();
+
+                user.setId(rs.getInt("id"));
+                user.setFullName(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+
+                users.add(user);
+            }
+        }
+
+        return users;
+    }
+
+    public User findUserByEmail(String email) throws SQLException {
+
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try (
+                Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, email);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+
+                return new User(
+                        resultSet.getInt("id"),
+                        resultSet.getString("full_name"),
+                        resultSet.getString("cpf"),
+                        resultSet.getString("email"),
+                        resultSet.getString("cargo"),
+                        resultSet.getString("login"),
+                        resultSet.getString("password"),
+                        resultSet.getString("profile_name"),
+                        ProfileType.valueOf(resultSet.getString("profile_type"))
+                );
+            }
+        }
+
+        return null;
+    }
 }
 

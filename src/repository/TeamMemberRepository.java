@@ -15,16 +15,16 @@ import java.util.List;
 
 public class TeamMemberRepository {
 
-    private UserService userService;
+    private UserRepository userRepository;
 
-    private TeamService teamService;
+    private TeamRepository teamRepository;
 
-    public TeamMemberRepository(UserService userService) {
-        this.userService = userService;
+    public TeamMemberRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public void setTeamService(TeamService teamService) {
-        this.teamService = teamService;
+    public void setTeamService(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
     }
 
     private void save(TeamMember teamMember, String tableName) throws SQLException {
@@ -84,8 +84,8 @@ public class TeamMemberRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                User member = userService.findUserByEmail(resultSet.getString("team_member_email"));
-                Team team = teamService.findTeamByName(resultSet.getString("team_name"));
+                User member = userRepository.findUserByEmail(resultSet.getString("team_member_email"));
+                Team team = teamRepository.findTeamByName(resultSet.getString("team_name"));
 
                 if (member == null || team == null) {
                     continue;

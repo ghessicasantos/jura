@@ -63,33 +63,14 @@ public class UserService {
         users.remove(userToRemove);
     }
 
-    public String updateUserProfileType(User loggedUser, String newProfileType) throws SQLException {
-        if (loggedUser.canEditUser()) {
+    public void updateUser(User loggedUser) throws SQLException {
+            System.out.println("Chamando update");
             userRepository.saveUserHistory(loggedUser);
-            ProfileType profileType = ProfileType.valueOf(newProfileType);
-            loggedUser.setProfileType(profileType);
-            return "Tipo de Perfil atualizado";
-        }
-        return "Não foi possível concluir a operação";
+            userRepository.updateUser(loggedUser);
+            System.out.println("Terminou update");
+
     }
 
-    public String updateUserFullName(User loggedUser, String newFullName) throws SQLException {
-        userRepository.saveUserHistory(loggedUser);
-        loggedUser.setFullName(newFullName);
-        return "Nome atualizado.";
-    }
-
-    public String updateUserEmail(User loggedUser, String newEmail) throws SQLException {
-        userRepository.saveUserHistory(loggedUser);
-        loggedUser.setEmail(newEmail);
-        return "email atualizado.";
-    }
-
-    public String updateUserCargo(User loggedUser, String newCargo) throws SQLException {
-        userRepository.saveUserHistory(loggedUser);
-        loggedUser.setCargo(newCargo);
-        return "Cargo atualizado.";
-    }
 
 
     public String recoverPassword(String email, String cpf, String newPassword) throws SQLException {
@@ -110,12 +91,6 @@ public class UserService {
         userRepository.updateUserPassword(user);
 
         return "Senha atualizada. Realize o login novamente.";
-    }
-
-    public String updateUserProfileName(User loggedUser, String newProfileName) throws SQLException {
-            userRepository.saveUserHistory(loggedUser);
-            loggedUser.setProfileName(newProfileName);
-                return "Nome do Perfil atualizado.";
     }
 
     public User findUserByEmail(String email){
@@ -139,30 +114,4 @@ public class UserService {
         return user;
     }
 
-    public void initializeUserSystem() throws SQLException {
-
-        if (getUsers().isEmpty()) {
-
-            User admin = new User(
-                    "Administrador",
-                    "0000",
-                    "admin@email.com",
-                    "admin",
-                    "admin",
-                    "12345678!@",
-                    "ADMIN",
-                    ProfileType.ADMIN
-            );
-
-            userRepository.saveUser(admin);
-
-            System.out.println("Para continuar, redefina a senha da conta administradora.");
-            System.out.println("Digite a nova senha:");
-            Scanner scan = new Scanner(System.in);
-            String newpass = scan.nextLine();
-            String recovery = recoverPassword("admin@email.com","000",newpass);
-            System.out.println(recovery);
-
-        }
-    }
 }
