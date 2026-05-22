@@ -50,10 +50,49 @@ public class TeamRepository {
         save(team, "teams_history");
     }
 
+    public void updateTeam(Team team, String oldTeamName) throws SQLException {
+        String sql = """
+                UPDATE teams
+                SET team_name = ?,
+                    description = ?,
+                    team_owner_email = ?,
+                    created_at = ?
+                WHERE team_name = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, team.getTeamName());
+            statement.setString(2, team.getDescription());
+            statement.setString(3, team.getTeamOwner().getEmail());
+            statement.setDate(4, Date.valueOf(team.getCreatedAt()));
+            statement.setString(5, oldTeamName);
+
+            statement.executeUpdate();
+        }
+    }
+
+    public void deleteTeam(Team team) throws SQLException {
+        String sql = """
+                UPDATE teams
+                SET active = false
+                WHERE team_name = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, team.getTeamName());
+
+            statement.executeUpdate();
+        }
+    }
+
     public List<Team> loadTeams() throws SQLException {
         List<Team> teams = new ArrayList<>();
 
-        String sql = "SELECT * FROM teams";
+        String sql = "SELECT * FROM teams WHERE active = true";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
@@ -82,7 +121,7 @@ public class TeamRepository {
 
     public Team findTeamByName(String teamName) throws SQLException {
 
-        String sql = "SELECT * FROM teams WHERE team_name = ?";
+        String sql = "SELECT * FROM teams WHERE team_name = ? AND active = true";
 
         try (
                 Connection connection = DatabaseConnection.getConnection();

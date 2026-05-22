@@ -53,13 +53,58 @@ public class TaskRepository {
         save(task, "tasks_history");
     }
 
+    public void updateTask(Task task, String oldTaskTitle) throws SQLException {
+        String sql = """
+                UPDATE tasks
+                SET task_title = ?,
+                    description = ?,
+                    start_date = ?,
+                    finish_date = ?,
+                    status = ?,
+                    assigned_user_email = ?,
+                    project_name = ?
+                WHERE task_title = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, task.getTaskTitle());
+            statement.setString(2, task.getDescription());
+            statement.setDate(3, Date.valueOf(task.getStartDate()));
+            statement.setDate(4, Date.valueOf(task.getFinishDate()));
+            statement.setString(5, task.getStatus().name());
+            statement.setString(6, task.getAssignedUser().getEmail());
+            statement.setString(7, task.getProject().getProjectName());
+            statement.setString(8, oldTaskTitle);
+
+            statement.executeUpdate();
+        }
+    }
+
+    public void deleteTask(Task task) throws SQLException {
+        String sql = """
+                UPDATE tasks
+                SET active = false
+                WHERE task_title = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, task.getTaskTitle());
+
+            statement.executeUpdate();
+        }
+    }
+
     public List<Task> loadTask() throws SQLException {
         UserService userService = new UserService();
         ProjectService projectService = new ProjectService();
 
         List<Task> tasks = new ArrayList<>();
 
-        String sql = "SELECT * FROM tasks";
+        String sql = "SELECT * FROM tasks WHERE active = true";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);

@@ -53,13 +53,58 @@ public class ProjectRepository {
         save(project, "project_history");
     }
 
+    public void updateProject(Project project, String oldProjectName) throws SQLException {
+        String sql = """
+                UPDATE projects
+                SET project_name = ?,
+                    description = ?,
+                    start_date = ?,
+                    finish_date = ?,
+                    status = ?,
+                    project_manager_email = ?,
+                    team_owner_name = ?
+                WHERE project_name = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, project.getProjectName());
+            statement.setString(2, project.getDescription());
+            statement.setDate(3, Date.valueOf(project.getStartDate()));
+            statement.setDate(4, Date.valueOf(project.getFinishDate()));
+            statement.setString(5, project.getStatus().name());
+            statement.setString(6, project.getProjectManager().getEmail());
+            statement.setString(7, project.getTeamOwner().getTeamName());
+            statement.setString(8, oldProjectName);
+
+            statement.executeUpdate();
+        }
+    }
+
+    public void deleteProject(Project project) throws SQLException {
+        String sql = """
+                UPDATE projects
+                SET active = false
+                WHERE project_name = ?
+                """;
+
+        try (Connection connection = DatabaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, project.getProjectName());
+
+            statement.executeUpdate();
+        }
+    }
+
     public List<Project> loadProject() throws SQLException {
         UserRepository userRepository = new UserRepository();
         TeamService teamService = new TeamService();
 
         List<Project> projects = new ArrayList<>();
 
-        String sql = "SELECT * FROM projects";
+        String sql = "SELECT * FROM projects WHERE active = true";
 
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
