@@ -33,30 +33,28 @@ src/
   enums/        Tipos fixos usados pelo sistema
 ```
 
-## Como executar
+## Como executar sem IDE
 
-1. Crie o banco de dados executando o arquivo `database.sql` no MySQL.
-2. Configure a variavel de ambiente `DB_PASSWORD` com a senha do usuario `root` do MySQL.
-3. Compile o projeto Java.
-4. Execute a classe `Main`.
+1. Instale o JDK.
+2. Instale e inicie o MySQL.
+3. Execute o arquivo `database.sql` no MySQL para criar o banco `jura` e as tabelas.
+4. No Windows, rode `run.bat` na raiz do projeto.
 
-Exemplo de compilacao pelo terminal:
 
-```bash
-javac -d out $(find src -name "*.java")
-```
+O script pergunta a senha do usuario `root` do MySQL caso a variavel `DB_PASSWORD` nao esteja configurada.
 
-No Windows PowerShell:
+Ao abrir o sistema pela primeira vez, use o botao **Criar usuario** na tela de login para cadastrar o primeiro usuario.
+
+Para compilar sem executar:
 
 ```powershell
-$sources = Get-ChildItem -Recurse -Filter *.java src | ForEach-Object { $_.FullName }
-javac -d out $sources
+.\build.ps1
 ```
 
-Depois execute:
+Para executar pelo PowerShell:
 
-```bash
-java -cp out Main
+```powershell
+.\run.ps1
 ```
 
 ## Banco de dados
