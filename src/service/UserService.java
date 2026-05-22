@@ -52,15 +52,18 @@ public class UserService {
         return null;
     }
 
-    public void removeUser(String login) {
-        User userToRemove = null;
+    public String removeUser(String login) throws SQLException {
+        User userToRemove = findUserByLogin(login);
 
-        for (User user : users) {
-            if (user.getLogin().equals(login)) {
-                userToRemove = user;
-            }
+        if (userToRemove == null) {
+            return "Usuario nao encontrado.";
         }
+
+        userRepository.saveUserHistory(userToRemove);
+        userRepository.deleteUser(userToRemove);
         users.remove(userToRemove);
+
+        return "Usuario removido.";
     }
 
     public void updateUser(User loggedUser) throws SQLException {

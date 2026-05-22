@@ -1,5 +1,7 @@
 package service;
 
+import enums.StatusProjects;
+import enums.StatusTasks;
 import model.Project;
 import model.TaskStatusReport;
 import repository.ReportRepository;
@@ -17,6 +19,14 @@ public class ReportService {
     public ReportService(ProjectService projectService) {
         this.reportRepository = new ReportRepository();
         this.projectService = projectService;
+    }
+
+    public Map<StatusProjects, Integer> getProjectsByStatus() throws SQLException {
+        return reportRepository.countProjectsByStatus();
+    }
+
+    public Map<StatusTasks, Integer> getTasksByStatus() throws SQLException {
+        return reportRepository.countTasksByStatus();
     }
 
     public List<TaskStatusReport> getTaskStatusReportForAllProjects() throws SQLException {
