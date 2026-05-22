@@ -14,10 +14,10 @@ import java.util.List;
 
 public class TeamRepository {
 
-    private UserService userService;
+    private UserRepository userRepository;
 
-    public TeamRepository(UserService userService) {
-        this.userService = userService;
+    public TeamRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     private void save(Team team, String tableName) throws SQLException {
@@ -60,7 +60,7 @@ public class TeamRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                User teamOwner = userService.findUserByEmail(resultSet.getString("team_owner_email"));
+                User teamOwner = userRepository.findUserByEmail(resultSet.getString("team_owner_email"));
 
                 if (teamOwner == null) {
                     continue;
@@ -78,5 +78,40 @@ public class TeamRepository {
         }
 
         return teams;
+    }
+
+    public Team findTeamByName(String teamName) throws SQLException {
+
+        String sql = "SELECT * FROM teams WHERE team_name = ?";
+
+        try (
+                Connection connection = DatabaseConnection.getConnection();
+                PreparedStatement statement = connection.prepareStatement(sql)
+        ) {
+
+            statement.setString(1, teamName);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+
+                User teamOwner = userRepository.findUserByEmail(
+                        resultSet.getString("team_owner_email")
+                );
+
+                if (teamOwner == null) {
+                    return null;
+                }
+
+                return new Team(
+                        resultSet.getString("team_name"),
+                        resultSet.getString("description"),
+                        teamOwner,
+                        resultSet.getDate("created_at").toLocalDate()
+                );
+            }
+        }
+
+        return null;
     }
 }

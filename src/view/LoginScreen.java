@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.PasswordField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.TextField;
@@ -20,13 +21,14 @@ import service.UserService;
 public class LoginScreen extends Application {
 
     UserService userService = new UserService();
+    MainMenu mainMenu = new MainMenu();
 
     public LoginScreen() throws SQLException {
     }
 
     @Override
     public void start(Stage stage) throws Exception {
-
+        Label feedback = new Label();
         Label title = new Label("Login");
 
         TextField emailField = new TextField();
@@ -34,10 +36,7 @@ public class LoginScreen extends Application {
 
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Digite sua senha");
-
         Button loginButton = new Button("Entrar");
-        Label feedback = new Label();
-
         loginButton.setOnAction(e -> {
 
             String email = emailField.getText();
@@ -45,19 +44,35 @@ public class LoginScreen extends Application {
 
             User loggedUser = userService.login(email,senha);
             if (loggedUser != null){
-                feedback.setText("Usuário logado");
+                mainMenu.show(stage,loggedUser);
             } else {
-                feedback.setText("usuário nao encontrado");
+                feedback.setText("Usuário nao encontrado");
             }
         });
+        Button createUserButton = new Button("Criar usuário");
+        createUserButton.setOnAction(e -> {
 
-        VBox root = new VBox(10);
+            UserScreen userScreen = new UserScreen();
+            try {
+                userScreen.showCreateUserScreen(stage);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
 
-        root.getChildren().addAll(title, emailField, passwordField, loginButton,feedback);
+        });
 
-        root.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(root, 400, 300);
+        VBox rootv = new VBox(10);
+        HBox rooth = new HBox(10);
+        rootv.getChildren().addAll(title,emailField,passwordField,feedback);
+
+        rooth.getChildren().addAll(loginButton,createUserButton);
+        rootv.getChildren().add(rooth);
+
+        rootv.setAlignment(Pos.CENTER);
+        rooth.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(rootv, 500, 800);
 
         stage.setScene(scene);
         stage.setTitle("Sistema");

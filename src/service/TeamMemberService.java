@@ -4,6 +4,8 @@ import model.Team;
 import model.TeamMember;
 import model.User;
 import repository.TeamMemberRepository;
+import repository.TeamRepository;
+import repository.UserRepository;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,12 +19,11 @@ public class TeamMemberService {
     private TeamService teamService;
 
     public TeamMemberService(
-            UserService userService,
-            TeamService teamService
+            UserRepository userRepository,
+            TeamRepository teamRepository
     ) {
-        this.teamMemberRepository = new TeamMemberRepository(userService);
-        this.teamMemberRepository.setTeamService(teamService);
-        this.teamService = teamService;
+        this.teamMemberRepository = new TeamMemberRepository(userRepository);
+        this.teamMemberRepository.setTeamService(teamRepository);
     }
 
     public List<TeamMember> listActiveMembersByTeam(Team team) {

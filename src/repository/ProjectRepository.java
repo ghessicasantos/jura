@@ -54,8 +54,8 @@ public class ProjectRepository {
     }
 
     public List<Project> loadProject() throws SQLException {
-        UserService userService = new UserService();
-        TeamService teamService = new TeamService(userService);
+        UserRepository userRepository = new UserRepository();
+        TeamService teamService = new TeamService();
 
         List<Project> projects = new ArrayList<>();
 
@@ -66,7 +66,7 @@ public class ProjectRepository {
              ResultSet resultSet = statement.executeQuery()) {
 
             while (resultSet.next()) {
-                User projectManager = userService.findUserByEmail(resultSet.getString("project_manager_email"));
+                User projectManager = userRepository.findUserByEmail(resultSet.getString("project_manager_email"));
                 Team projectTeam = teamService.findTeamByName(resultSet.getString("team_owner_name"));
 
                 if (projectManager == null || projectTeam == null) {
