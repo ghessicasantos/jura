@@ -16,6 +16,9 @@ public class User {
 
 
 
+    public User() {
+    }
+
     public User (String fullName,
                   String cpf,
                   String email,
@@ -58,6 +61,10 @@ public class User {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getFullName() {
@@ -128,10 +135,6 @@ public class User {
     @Override
     public String toString() {
         return email;
-    }
-
-    public Long setId(int id) {
-        return getId();
     }
 }
 
