@@ -106,7 +106,7 @@ public class TeamMemberService {
 
     private TeamMember findTeamMember(Team team, User user) {
         for (TeamMember member : team.getMembers()) {
-            if (member.getUser().equals(user)) {
+            if (member.getUser().getEmail().equalsIgnoreCase(user.getEmail())) {
                 return member;
             }
         }

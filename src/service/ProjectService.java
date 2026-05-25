@@ -64,8 +64,10 @@ public class ProjectService {
                 return "Nome do projeto ja existe.";
             }
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setProjectName(newProjectName);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Nome do projeto alterado -> " + newProjectName;
     }
 
@@ -73,9 +75,10 @@ public class ProjectService {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setDescription(newProjectDescription);
-        projectRepository.saveProject(targetProject);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Nova descricao definida.";
     }
 
@@ -83,8 +86,10 @@ public class ProjectService {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setStartDate(newStartDate);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Nova data de inicio definida -> " + newStartDate;
     }
 
@@ -92,8 +97,10 @@ public class ProjectService {
         if(!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)){
             return deniedPermissionString;
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setFinishDate(newFinishDate);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Nova data de termino definida -> " + newFinishDate;
     }
 
@@ -101,8 +108,10 @@ public class ProjectService {
         if (!targetProject.canEditTeamLevel2(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
             return deniedPermissionString;
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setStatus(newProjectStatus);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Novo Status definido -> " + newProjectStatus;
     }
 
@@ -110,8 +119,10 @@ public class ProjectService {
         if (!targetProject.canEditTeamLevel1(loggedUser) && !targetProject.getProjectManager().equals(loggedUser)) {
             return deniedPermissionString;
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setProjectManager(newProjectManager);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Novo responsavel pelo projeto definido -> " + newProjectManager.getFullName();
     }
 
@@ -122,8 +133,10 @@ public class ProjectService {
         if (newProjectTeam == null) {
             return "time nao encontrado.";
         }
+        String oldProjectName = targetProject.getProjectName();
         projectRepository.saveProjectHistory(targetProject);
         targetProject.setTeamOwner(newProjectTeam);
+        projectRepository.updateProject(targetProject, oldProjectName);
         return "Novo time do projeto definido -> " + newProjectTeam.getTeamName();
     }
 
@@ -138,6 +151,18 @@ public class ProjectService {
 
     public List<Project> getProjects() {
         return projects;
+    }
+
+    public String removeProject(Project project) throws SQLException {
+        if (project == null) {
+            return "Projeto nao encontrado.";
+        }
+
+        projectRepository.saveProjectHistory(project);
+        projectRepository.deleteProject(project);
+        projects.remove(project);
+
+        return "Projeto removido.";
     }
 
 }

@@ -85,6 +85,18 @@ public class UserScreen {
             mainMenu.show(stage,loggedUser);
         });
 
+        Button removeButton = new Button("Remover usuario");
+        removeButton.setOnAction(actionEvent -> {
+            try {
+                feedback.setText(userService.removeUser(loggedUser.getLogin()));
+                LoginScreen loginScreen = new LoginScreen();
+                loginScreen.start(stage);
+            } catch (Exception e) {
+                feedback.setText("Erro ao remover usuario");
+                throw new RuntimeException(e);
+            }
+        });
+
         VBox rootv = new VBox(15);
         HBox rooth = new HBox(15);
         rootv.getChildren().addAll(
@@ -100,7 +112,7 @@ public class UserScreen {
                 profileType,
                 profileBox,
                 feedback);
-        rooth.getChildren().addAll(saveButton,back);
+        rooth.getChildren().addAll(saveButton,removeButton,back);
         rootv.setAlignment(Pos.CENTER);
         rootv.getChildren().add(rooth);
         rooth.setAlignment(Pos.CENTER);
@@ -216,7 +228,8 @@ public class UserScreen {
                     profileTypeLabel,
                     profileBox,
                     saveButton,
-                    backButton
+                    backButton,
+                    feedback
             );
 
             Scene createScene = new Scene(createLayout, 500, 800);

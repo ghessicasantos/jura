@@ -73,6 +73,7 @@ public class TeamService {
         if(teamMember != null){
             teamMemberRepository.saveTeamMemberHistory(teamMember);
             teamMember.deactivate();
+            teamMemberRepository.updateTeamMemberStatus(teamMember);
         }
         return "Membro removido do time -> "+ oldMember.getFullName();
     }
@@ -86,8 +87,10 @@ public class TeamService {
         if(newTeamOwner.getProfileType() != ProfileType.ADMIN && newTeamOwner.getProfileType() != ProfileType.MANAGER){
             return "Usuário não pode ser Lider de time. Verifique o perfil do usário.";
         }
+        String oldTeamName = team.getTeamName();
         teamRepository.saveTeamHistory(team);
         team.setTeamOwner(newTeamOwner);
+        teamRepository.updateTeam(team, oldTeamName);
         return "Novo responsável definido -> " + newTeamOwner.getFullName();
     }
 
@@ -106,6 +109,18 @@ public class TeamService {
         return teams;
     }
 
+    public String removeTeam(Team team) throws SQLException {
+        if (team == null) {
+            return "Time nao encontrado.";
+        }
+
+        teamRepository.saveTeamHistory(team);
+        teamRepository.deleteTeam(team);
+        teams.remove(team);
+
+        return "Time removido.";
+    }
+
     private TeamMember findTeamMember(Team team, User user) {
         for (TeamMember member : team.getMembers()) {
             if (member.getUser().equals(user)) {
@@ -116,14 +131,18 @@ public class TeamService {
     }
 
     public String updateTeamName(Team team, String newName) throws SQLException {
+        String oldTeamName = team.getTeamName();
         teamRepository.saveTeamHistory(team);
         team.setTeamName(newName);
+        teamRepository.updateTeam(team, oldTeamName);
         return "Nome atualizado.";
     }
 
     public String updateTeamDescription(Team team, String newDescription) throws SQLException {
+        String oldTeamName = team.getTeamName();
         teamRepository.saveTeamHistory(team);
         team.setDescription(newDescription);
+        teamRepository.updateTeam(team, oldTeamName);
         return "Descrição atualizada.";
     }
 

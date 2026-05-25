@@ -96,12 +96,28 @@ public class UserRepository {
         }
     }
 
+    public void deleteUser(User user) throws SQLException {
+        String sql = """
+                UPDATE users
+                SET active = false
+                WHERE email = ?
+                """;
+
+        try(Connection connection = DatabaseConnection.getConnection();
+            PreparedStatement statement = connection.prepareStatement(sql)){
+
+            statement.setString(1, user.getEmail());
+
+            statement.executeUpdate();
+        }
+    }
+
 
     public List<User> loadUsers() throws SQLException{
 
         List<User> users = new ArrayList<>();
 
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM users WHERE active = true";
 
         try(Connection connection = DatabaseConnection.getConnection();
             PreparedStatement statement = connection.prepareStatement(sql);
@@ -129,7 +145,7 @@ public class UserRepository {
 
         List<User> users = new ArrayList<>();
 
-        String sql = "SELECT * FROM users";
+        String sql = "SELECT * FROM users WHERE active = true";
 
         try (
                 Connection connection = DatabaseConnection.getConnection();
@@ -141,7 +157,7 @@ public class UserRepository {
 
                 User user = new User();
 
-                user.setId(rs.getInt("id"));
+                user.setId(rs.getLong("id"));
                 user.setFullName(rs.getString("full_name"));
                 user.setEmail(rs.getString("email"));
 
@@ -154,7 +170,7 @@ public class UserRepository {
 
     public User findUserByEmail(String email) throws SQLException {
 
-        String sql = "SELECT * FROM users WHERE email = ?";
+        String sql = "SELECT * FROM users WHERE email = ? AND active = true";
 
         try (
                 Connection connection = DatabaseConnection.getConnection();
@@ -168,7 +184,7 @@ public class UserRepository {
             if (resultSet.next()) {
 
                 return new User(
-                        resultSet.getInt("id"),
+                        resultSet.getLong("id"),
                         resultSet.getString("full_name"),
                         resultSet.getString("cpf"),
                         resultSet.getString("email"),

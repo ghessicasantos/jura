@@ -46,38 +46,50 @@ public class TaskService {
     }
 
     public String changeTaskTitle(Task targetTask,String newTaskTitle) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setTaskTitle(newTaskTitle);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Título da tarefa definido -> " + newTaskTitle;
     }
 
     public String changeDescription(Task targetTask,String newTaskDescription) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setDescription(newTaskDescription);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Descricao definida: " + newTaskDescription;
     }
 
     public String changeStartDate(Task targetTask, LocalDate newStartDate) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setStartDate(newStartDate);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Data de inicio definida -> " + newStartDate;
     }
 
     public String changeFinishDate(Task targetTask,LocalDate newFinishDate) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setFinishDate(newFinishDate);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Data de termino definida -> " + newFinishDate;
     }
 
     public String changeStatus(Task targetTask,StatusTasks newTaskStatus) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setStatus(newTaskStatus);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Novo Status definido -> " + newTaskStatus;
     }
 
     public String changeAssignedUser(Task targetTask,User newAssignedUser) throws SQLException {
+        String oldTaskTitle = targetTask.getTaskTitle();
         taskRepository.saveTaskHistory(targetTask);
         targetTask.setAssignedUser(newAssignedUser);
+        taskRepository.updateTask(targetTask, oldTaskTitle);
         return "Responsavel pela tarefa definido -> " + newAssignedUser.getFullName();
     }
 
@@ -92,6 +104,18 @@ public class TaskService {
             }
         }
         return null;
+    }
+
+    public String removeTask(Task task) throws SQLException {
+        if (task == null) {
+            return "Tarefa nao encontrada.";
+        }
+
+        taskRepository.saveTaskHistory(task);
+        taskRepository.deleteTask(task);
+        tasks.remove(task);
+
+        return "Tarefa removida.";
     }
     
 }
