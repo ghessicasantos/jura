@@ -27,13 +27,24 @@ public class TeamService {
         this.teamMemberRepository.setTeamService(teamRepository);
 
         for (TeamMember member : teamMemberRepository.loadTeamMembers()) {
-            member.getTeam().addMember(member);
+            Team team = findTeamByName(member.getTeam().getTeamName());
+
+            if (team != null) {
+                TeamMember teamMember = new TeamMember(member.getUser(), team, member.isActive());
+                team.addMember(teamMember);
+            }
         }
     }
 
     private List<Team> teams;
 
     public Team createTeam(Team team) throws SQLException {
+        if (team.getTeamName() == null || team.getTeamName().isBlank()) {
+            throw new IllegalArgumentException("Informe o nome do time.");
+        }
+        if (team.getDescription() == null || team.getDescription().isBlank()) {
+            throw new IllegalArgumentException("Informe a descricao do time.");
+        }
         if (team.getTeamOwner() == null) {
             throw new IllegalArgumentException("Responsavel pelo time nao encontrado.");
         }
@@ -107,6 +118,18 @@ public class TeamService {
 
     public List<Team> getTeams(){
         return teams;
+    }
+
+    public int countActiveMembers(Team team) {
+        int total = 0;
+
+        for (TeamMember member : team.getMembers()) {
+            if (member.isActive()) {
+                total++;
+            }
+        }
+
+        return total;
     }
 
     public String removeTeam(Team team) throws SQLException {

@@ -9,6 +9,7 @@ import repository.ProjectRepository;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProjectService {
@@ -151,6 +152,18 @@ public class ProjectService {
 
     public List<Project> getProjects() {
         return projects;
+    }
+
+    public List<Project> getProjectsByTeam(Team team) {
+        List<Project> projectsByTeam = new ArrayList<>();
+
+        for (Project project : projects) {
+            if (project.getTeamOwner().getTeamName().equalsIgnoreCase(team.getTeamName())) {
+                projectsByTeam.add(project);
+            }
+        }
+
+        return projectsByTeam;
     }
 
     public String removeProject(Project project) throws SQLException {

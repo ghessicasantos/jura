@@ -68,22 +68,44 @@ public class TeamMemberScreen {
         Button addButton = new Button("Adicionar");
         addButton.setOnAction(event -> {
             try {
-                String result = teamMemberService.addMember(loggedUser, teamComboBox.getValue(), userComboBox.getValue());
+                Team selectedTeam = teamComboBox.getValue();
+                User selectedUser = userComboBox.getValue();
+
+                if (selectedTeam == null) {
+                    feedback.setText("Selecione um time.");
+                    return;
+                }
+                if (selectedUser == null) {
+                    feedback.setText("Selecione um usuario.");
+                    return;
+                }
+
+                String result = teamMemberService.addMember(loggedUser, selectedTeam, selectedUser);
                 feedback.setText(result);
             } catch (SQLException ex) {
                 feedback.setText("Erro ao adicionar membro");
-                throw new RuntimeException(ex);
             }
         });
 
         Button removeButton = new Button("Remover");
         removeButton.setOnAction(event -> {
             try {
-                String result = teamMemberService.removeMember(loggedUser, teamComboBox.getValue(), userComboBox.getValue());
+                Team selectedTeam = teamComboBox.getValue();
+                User selectedUser = userComboBox.getValue();
+
+                if (selectedTeam == null) {
+                    feedback.setText("Selecione um time.");
+                    return;
+                }
+                if (selectedUser == null) {
+                    feedback.setText("Selecione um usuario.");
+                    return;
+                }
+
+                String result = teamMemberService.removeMember(loggedUser, selectedTeam, selectedUser);
                 feedback.setText(result);
             } catch (SQLException ex) {
                 feedback.setText("Erro ao remover membro");
-                throw new RuntimeException(ex);
             }
         });
 
