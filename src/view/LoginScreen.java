@@ -29,6 +29,15 @@ public class LoginScreen extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Label feedback = new Label();
+        showLogin(stage, feedback);
+    }
+
+    public void start(Stage stage, String message) throws Exception {
+        Label feedback = new Label(message);
+        showLogin(stage, feedback);
+    }
+
+    private void showLogin(Stage stage, Label feedback) {
         Label title = new Label("Login");
 
         TextField emailField = new TextField();
@@ -42,11 +51,16 @@ public class LoginScreen extends Application {
             String email = emailField.getText();
             String senha = passwordField.getText();
 
+            if (email.isBlank() || senha.isBlank()) {
+                feedback.setText("Informe email e senha.");
+                return;
+            }
+
             User loggedUser = userService.login(email,senha);
             if (loggedUser != null){
                 mainMenu.show(stage,loggedUser);
             } else {
-                feedback.setText("Usuário nao encontrado");
+                feedback.setText("Email ou senha invalidos.");
             }
         });
         Button createUserButton = new Button("Criar usuário");

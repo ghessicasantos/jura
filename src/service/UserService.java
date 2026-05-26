@@ -26,6 +26,23 @@ public class UserService {
     }
 
     public String createUser(User user) throws SQLException {
+        if (user.getFullName() == null || user.getFullName().isBlank()
+                || user.getCpf() == null || user.getCpf().isBlank()
+                || user.getEmail() == null || user.getEmail().isBlank()
+                || user.getCargo() == null || user.getCargo().isBlank()
+                || user.getLogin() == null || user.getLogin().isBlank()
+                || user.getPassword() == null || user.getPassword().isBlank()
+                || user.getProfileName() == null || user.getProfileName().isBlank()
+                || user.getProfileType() == null) {
+            throw new IllegalArgumentException("Preencha todos os campos.");
+        }
+        if (findUserByEmail(user.getEmail()) != null) {
+            throw new IllegalArgumentException("Ja existe um usuario com esse email.");
+        }
+        if (findUserByLogin(user.getLogin()) != null) {
+            throw new IllegalArgumentException("Ja existe um usuario com esse login.");
+        }
+
         addUser(user);
 
         userRepository.saveUser(user);

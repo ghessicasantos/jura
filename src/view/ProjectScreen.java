@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -19,6 +20,7 @@ import service.TeamService;
 import service.UserService;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class ProjectScreen {
 
@@ -52,6 +54,15 @@ public class ProjectScreen {
             }
         });
 
+        Button listButton = new Button("Listar projetos");
+        listButton.setOnAction(event -> {
+            try {
+                listProjectsShow(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         Button backButton = new Button("Voltar");
         backButton.setOnAction(event -> {
             MainMenu mainMenu = new MainMenu();
@@ -59,7 +70,7 @@ public class ProjectScreen {
         });
 
         VBox root = new VBox(10);
-        root.getChildren().addAll(title, createButton, editButton, removeButton, backButton);
+        root.getChildren().addAll(title, createButton, editButton, removeButton, listButton, backButton);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 800);
@@ -129,7 +140,6 @@ public class ProjectScreen {
                 feedback.setText(ex.getMessage());
             } catch (SQLException ex) {
                 feedback.setText("Erro ao criar projeto");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -248,7 +258,6 @@ public class ProjectScreen {
                 }
             } catch (SQLException ex) {
                 feedback.setText("Erro ao editar projeto");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -311,12 +320,16 @@ public class ProjectScreen {
         removeButton.setOnAction(event -> {
             try {
                 Project selectedProject = projectComboBox.getValue();
+                if (selectedProject == null) {
+                    feedback.setText("Selecione um projeto.");
+                    return;
+                }
+
                 feedback.setText(projectService.removeProject(selectedProject));
                 projectComboBox.getItems().remove(selectedProject);
                 projectComboBox.setValue(null);
             } catch (SQLException ex) {
                 feedback.setText("Erro ao remover projeto");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -337,5 +350,63 @@ public class ProjectScreen {
         stage.setScene(scene);
         stage.setTitle("Remover projeto");
         stage.show();
+    }
+
+    public void listProjectsShow(Stage stage, User loggedUser) throws SQLException {
+        ProjectService projectService = new ProjectService();
+
+        Label title = new Label("Listar projetos");
+        StringBuilder listText = new StringBuilder();
+
+        for (Project project : projectService.getProjects()) {
+            listText.append("Projeto: ").append(project.getProjectName()).append("\n");
+            listText.append("Descricao: ").append(project.getDescription()).append("\n");
+            listText.append("Responsavel: ").append(project.getProjectManager().getFullName()).append("\n");
+            listText.append("Time: ").append(project.getTeamOwner().getTeamName()).append("\n");
+            listText.append("Status: ").append(project.getStatus()).append("\n");
+            listText.append("Inicio: ").append(project.getStartDate()).append("\n");
+            listText.append("Termino: ").append(project.getFinishDate()).append("\n");
+            listText.append("Situacao do prazo: ").append(getDeadlineStatus(project)).append("\n\n");
+        }
+
+        if (listText.length() == 0) {
+            listText.append("Nenhum projeto cadastrado.");
+        }
+
+        TextArea projectsTextArea = new TextArea(listText.toString());
+        projectsTextArea.setEditable(false);
+        projectsTextArea.setWrapText(true);
+        projectsTextArea.setPrefHeight(650);
+
+        Button backButton = new Button("Voltar");
+        backButton.setOnAction(event -> {
+            try {
+                show(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        VBox root = new VBox(10);
+        root.getChildren().addAll(title, projectsTextArea, backButton);
+        root.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(root, 500, 800);
+        stage.setScene(scene);
+        stage.setTitle("Listar projetos");
+        stage.show();
+    }
+
+    private String getDeadlineStatus(Project project) {
+        if (project.getStatus() == StatusProjects.CONCLUIDO) {
+            return "Concluido";
+        }
+        if (project.getStatus() == StatusProjects.CANCELADO) {
+            return "Cancelado";
+        }
+        if (project.getFinishDate().isBefore(LocalDate.now())) {
+            return "Atrasado";
+        }
+        return "No prazo";
     }
 }

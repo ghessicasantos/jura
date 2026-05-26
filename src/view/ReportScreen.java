@@ -6,9 +6,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.Project;
+import model.Task;
+import model.Team;
 import model.TaskStatusReport;
 import model.User;
 import service.ProjectService;
@@ -56,7 +59,35 @@ public class ReportScreen {
             }
         }
 
-        Label report = new Label(reportText.toString());
+        reportText.append("\nTarefas cadastradas:\n");
+        for (Task task : reportService.getTasks()) {
+            reportText.append("\nTarefa: ").append(task.getTaskTitle()).append("\n");
+            reportText.append("Projeto: ").append(task.getProject().getProjectName()).append("\n");
+            reportText.append("Responsavel: ").append(task.getAssignedUser().getFullName()).append("\n");
+            reportText.append("Status: ").append(task.getStatus()).append("\n");
+            reportText.append("Data de termino prevista: ").append(task.getFinishDate()).append("\n");
+            reportText.append("Situacao do prazo: ").append(getDeadlineStatus(task)).append("\n");
+        }
+
+        reportText.append("\nRelatorio por equipe:\n");
+        for (Team team : reportService.getTeams()) {
+            reportText.append("\nEquipe: ").append(team.getTeamName()).append("\n");
+            reportText.append("Responsavel: ").append(team.getTeamOwner().getFullName()).append("\n");
+            reportText.append("Membros ativos: ").append(reportService.countActiveMembers(team)).append("\n");
+            reportText.append("Projetos vinculados:\n");
+
+            for (Project project : reportService.getProjectsByTeam(team)) {
+                reportText.append("- ").append(project.getProjectName())
+                        .append(" | Status: ").append(project.getStatus())
+                        .append(" | Prazo: ").append(getDeadlineStatus(project))
+                        .append("\n");
+            }
+        }
+
+        TextArea report = new TextArea(reportText.toString());
+        report.setEditable(false);
+        report.setWrapText(true);
+        report.setPrefHeight(650);
 
         Button backButton = new Button("Voltar");
         backButton.setOnAction(event -> {
@@ -83,6 +114,19 @@ public class ReportScreen {
         }
         if (project.getFinishDate().isBefore(LocalDate.now())) {
             return "Atrasado";
+        }
+        return "No prazo";
+    }
+
+    private String getDeadlineStatus(Task task) {
+        if (task.getStatus() == StatusTasks.COMPLETED) {
+            return "Concluida";
+        }
+        if (task.getStatus() == StatusTasks.CANCELED) {
+            return "Cancelada";
+        }
+        if (task.getFinishDate().isBefore(LocalDate.now())) {
+            return "Atrasada";
         }
         return "No prazo";
     }

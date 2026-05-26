@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -19,6 +20,7 @@ import service.TaskService;
 import service.UserService;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class TaskScreen {
 
@@ -52,6 +54,15 @@ public class TaskScreen {
             }
         });
 
+        Button listButton = new Button("Listar tarefas");
+        listButton.setOnAction(event -> {
+            try {
+                listTasksShow(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         Button backButton = new Button("Voltar");
         backButton.setOnAction(event -> {
             MainMenu mainMenu = new MainMenu();
@@ -59,7 +70,7 @@ public class TaskScreen {
         });
 
         VBox root = new VBox(10);
-        root.getChildren().addAll(title, createButton, editButton, removeButton, backButton);
+        root.getChildren().addAll(title, createButton, editButton, removeButton, listButton, backButton);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 800);
@@ -129,7 +140,6 @@ public class TaskScreen {
                 feedback.setText(ex.getMessage());
             } catch (SQLException ex) {
                 feedback.setText("Erro ao criar tarefa");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -240,7 +250,6 @@ public class TaskScreen {
                 }
             } catch (SQLException ex) {
                 feedback.setText("Erro ao editar tarefa");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -301,12 +310,16 @@ public class TaskScreen {
         removeButton.setOnAction(event -> {
             try {
                 Task selectedTask = taskComboBox.getValue();
+                if (selectedTask == null) {
+                    feedback.setText("Selecione uma tarefa.");
+                    return;
+                }
+
                 feedback.setText(taskService.removeTask(selectedTask));
                 taskComboBox.getItems().remove(selectedTask);
                 taskComboBox.setValue(null);
             } catch (SQLException ex) {
                 feedback.setText("Erro ao remover tarefa");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -327,5 +340,63 @@ public class TaskScreen {
         stage.setScene(scene);
         stage.setTitle("Remover tarefa");
         stage.show();
+    }
+
+    public void listTasksShow(Stage stage, User loggedUser) throws SQLException {
+        TaskService taskService = new TaskService();
+
+        Label title = new Label("Listar tarefas");
+        StringBuilder listText = new StringBuilder();
+
+        for (Task task : taskService.getTasks()) {
+            listText.append("Tarefa: ").append(task.getTaskTitle()).append("\n");
+            listText.append("Descricao: ").append(task.getDescription()).append("\n");
+            listText.append("Responsavel: ").append(task.getAssignedUser().getFullName()).append("\n");
+            listText.append("Projeto: ").append(task.getProject().getProjectName()).append("\n");
+            listText.append("Status: ").append(task.getStatus()).append("\n");
+            listText.append("Inicio: ").append(task.getStartDate()).append("\n");
+            listText.append("Termino: ").append(task.getFinishDate()).append("\n");
+            listText.append("Situacao do prazo: ").append(getDeadlineStatus(task)).append("\n\n");
+        }
+
+        if (listText.length() == 0) {
+            listText.append("Nenhuma tarefa cadastrada.");
+        }
+
+        TextArea tasksTextArea = new TextArea(listText.toString());
+        tasksTextArea.setEditable(false);
+        tasksTextArea.setWrapText(true);
+        tasksTextArea.setPrefHeight(650);
+
+        Button backButton = new Button("Voltar");
+        backButton.setOnAction(event -> {
+            try {
+                show(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        VBox root = new VBox(10);
+        root.getChildren().addAll(title, tasksTextArea, backButton);
+        root.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(root, 500, 800);
+        stage.setScene(scene);
+        stage.setTitle("Listar tarefas");
+        stage.show();
+    }
+
+    private String getDeadlineStatus(Task task) {
+        if (task.getStatus() == StatusTasks.COMPLETED) {
+            return "Concluida";
+        }
+        if (task.getStatus() == StatusTasks.CANCELED) {
+            return "Cancelada";
+        }
+        if (task.getFinishDate().isBefore(LocalDate.now())) {
+            return "Atrasada";
+        }
+        return "No prazo";
     }
 }

@@ -6,6 +6,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -49,6 +50,15 @@ public class TeamScreen {
             }
         });
 
+        Button listButton = new Button("Listar times");
+        listButton.setOnAction(event -> {
+            try {
+                listTeamsShow(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
         Button backButton = new Button("Voltar");
         backButton.setOnAction(event -> {
             MainMenu mainMenu = new MainMenu();
@@ -56,7 +66,7 @@ public class TeamScreen {
         });
 
         VBox root = new VBox(10);
-        root.getChildren().addAll(title, createButton, editButton, removeButton, backButton);
+        root.getChildren().addAll(title, createButton, editButton, removeButton, listButton, backButton);
         root.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(root, 500, 800);
@@ -90,6 +100,19 @@ public class TeamScreen {
             try {
                 User selectedUser = userComboBox.getValue();
 
+                if (teamNameField.getText().isBlank()) {
+                    feedback.setText("Informe o nome do time.");
+                    return;
+                }
+                if (discriptionField.getText().isBlank()) {
+                    feedback.setText("Informe a descricao do time.");
+                    return;
+                }
+                if (selectedUser == null) {
+                    feedback.setText("Selecione o responsavel pelo time.");
+                    return;
+                }
+
                 Team team = new Team(
                         teamNameField.getText(),
                         discriptionField.getText(),
@@ -99,9 +122,10 @@ public class TeamScreen {
 
                 teamService.createTeam(team);
                 feedback.setText("Time criado com sucesso");
+            } catch (IllegalArgumentException ex) {
+                feedback.setText(ex.getMessage());
             } catch (SQLException ex) {
                 feedback.setText("Erro ao criar o time");
-                throw new RuntimeException(ex);
 
             }
             VBox createLayout = new VBox(10);
@@ -153,12 +177,16 @@ public class TeamScreen {
         removeButton.setOnAction(event -> {
             try {
                 Team selectedTeam = teamComboBox.getValue();
+                if (selectedTeam == null) {
+                    feedback.setText("Selecione um time.");
+                    return;
+                }
+
                 feedback.setText(teamService.removeTeam(selectedTeam));
                 teamComboBox.getItems().remove(selectedTeam);
                 teamComboBox.setValue(null);
             } catch (SQLException ex) {
                 feedback.setText("Erro ao remover time");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -232,7 +260,6 @@ public class TeamScreen {
                 }
             } catch (SQLException ex) {
                 feedback.setText("Erro ao editar time");
-                throw new RuntimeException(ex);
             }
         });
 
@@ -269,6 +296,47 @@ public class TeamScreen {
         stage.show();
     }
 
+    public void listTeamsShow(Stage stage, User loggedUser) throws SQLException {
+        TeamService teamService = new TeamService();
+
+        Label title = new Label("Listar times");
+        StringBuilder listText = new StringBuilder();
+
+        for (Team team : teamService.getTeams()) {
+            listText.append("Time: ").append(team.getTeamName()).append("\n");
+            listText.append("Descricao: ").append(team.getDescription()).append("\n");
+            listText.append("Responsavel: ").append(team.getTeamOwner().getFullName()).append("\n");
+            listText.append("Membros ativos: ").append(teamService.countActiveMembers(team)).append("\n");
+            listText.append("Criado em: ").append(team.getCreatedAt()).append("\n\n");
+        }
+
+        if (listText.length() == 0) {
+            listText.append("Nenhum time cadastrado.");
+        }
+
+        TextArea teamsTextArea = new TextArea(listText.toString());
+        teamsTextArea.setEditable(false);
+        teamsTextArea.setWrapText(true);
+        teamsTextArea.setPrefHeight(650);
+
+        Button backButton = new Button("Voltar");
+        backButton.setOnAction(event -> {
+            try {
+                show(stage, loggedUser);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+
+        VBox root = new VBox(10);
+        root.getChildren().addAll(title, teamsTextArea, backButton);
+        root.setAlignment(Pos.CENTER);
+
+        Scene scene = new Scene(root, 500, 800);
+        stage.setScene(scene);
+        stage.setTitle("Listar times");
+        stage.show();
+    }
 
  }
 

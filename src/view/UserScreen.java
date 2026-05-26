@@ -50,6 +50,15 @@ public class UserScreen {
         Label feedback = new Label();
         Button saveButton = new Button("Salvar");
         saveButton.setOnAction(actionEvent1 ->{
+            if(newFullNameField.getText().isBlank()
+                    && newEmailField.getText().isBlank()
+                    && newCargo.getText().isBlank()
+                    && newProfileName.getText().isBlank()
+                    && profileBox.getValue() == null){
+                feedback.setText("Informe pelo menos um campo para atualizar.");
+                return;
+            }
+
             if(!newFullNameField.getText().isBlank()){
                 loggedUser.setFullName(newFullNameField.getText());
             }
@@ -66,13 +75,12 @@ public class UserScreen {
                 loggedUser.setProfileType(profileBox.getValue());
             }
 
-            try {System.out.println(loggedUser.getEmail());
+            try {
                 userService.updateUser(loggedUser);
-                feedback.setText("Usuário atualizado");
+                feedback.setText("Usuario atualizado com sucesso.");
 
             } catch (SQLException e) {
-                feedback.setText("Erro ao concluir a operação");
-                throw new RuntimeException(e);
+                feedback.setText("Erro ao atualizar usuario.");
                     }
 
 
@@ -88,12 +96,12 @@ public class UserScreen {
         Button removeButton = new Button("Remover usuario");
         removeButton.setOnAction(actionEvent -> {
             try {
-                feedback.setText(userService.removeUser(loggedUser.getLogin()));
+                String result = userService.removeUser(loggedUser.getLogin());
+                feedback.setText(result);
                 LoginScreen loginScreen = new LoginScreen();
-                loginScreen.start(stage);
+                loginScreen.start(stage, result);
             } catch (Exception e) {
                 feedback.setText("Erro ao remover usuario");
-                throw new RuntimeException(e);
             }
         });
 
@@ -179,11 +187,11 @@ public class UserScreen {
                             profileNameField.getText(),
                             profileTypeField);
 
-                    userService.createUser(user);
-                    feedback.setText("Usuário criado com sucesso");
+                    feedback.setText(userService.createUser(user));
+                } catch (IllegalArgumentException ex) {
+                    feedback.setText(ex.getMessage());
                 } catch (SQLException ex) {
-                    feedback.setText("Erro ao criar usuário");
-                    throw new RuntimeException(ex);
+                    feedback.setText("Erro ao criar usuario.");
 
                 }
                 VBox createLayout = new VBox(10);
